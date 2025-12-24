@@ -34,12 +34,12 @@ export const ProductDetails = ({ product, onBack }) => {
 أريد طلب هذه المسكة:
 
 📦 *${product.name}*
-💐 نوع الورد: ${product.flowerType}
+نوع الورد: ${product.flowerType} 💐 
 
-📝 الوصف:
+ الوصف📝:
 ${product.description}
 
-💰 السعر: *${product.salePrice} دينار*
+ السعر: *${product.salePrice} دينار 💰*
 
 `
     );
