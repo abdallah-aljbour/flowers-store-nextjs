@@ -29,7 +29,19 @@ export const ProductDetails = ({ product, onBack }) => {
 
   const handleOrder = (platform) => {
     const message = encodeURIComponent(
-      `مرحباً 🌸\n\nأريد طلب:\n*${product.name}*\nالسعر: ${product.salePrice} دينار`
+      `مرحباً 🌸
+
+أريد طلب هذه المسكة:
+
+📦 *${product.name}*
+💐 نوع الورد: ${product.flowerType}
+
+📝 الوصف:
+${product.description}
+
+💰 السعر: *${product.salePrice} دينار*
+
+بانتظار الرد 💕`
     );
 
     if (platform === "instagram") {
