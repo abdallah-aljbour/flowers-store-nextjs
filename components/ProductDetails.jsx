@@ -33,9 +33,15 @@ export const ProductDetails = ({ product, onBack }) => {
     );
 
     if (platform === "instagram") {
-      window.open(`https://ig.me/m/your_instagram?text=${message}`, "_blank");
+      window.open(
+        `https://ig.me/m/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}?text=${message}`,
+        "_blank"
+      );
     } else if (platform === "whatsapp") {
-      window.open(`https://wa.me/962790123456?text=${message}`, "_blank");
+      window.open(
+        `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
+        "_blank"
+      );
     }
   };
 
