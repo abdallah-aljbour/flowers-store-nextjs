@@ -75,74 +75,18 @@ ${product.description}
     );
 
     if (platform === "instagram") {
-      // نسخ الرسالة
-      const decodedMessage = decodeURIComponent(message);
-      navigator.clipboard.writeText(decodedMessage);
-
-      // عرض toast أولاً
-      showToast(
-        "تم نسخ تفاصيل المسكة! فقط الصقها في مسجات الصفحة لمراسلتنا ✅"
+      // فتح Instagram مباشرة بدون أي عجقة
+      window.open(
+        `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`,
+        "_blank"
       );
-
-      // انتظار نص ثانية عشان المستخدم يشوف الـ toast
-      setTimeout(() => {
-        window.open(
-          `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`,
-          "_blank"
-        );
-      }, 3500); // 0.8 ثانية
     } else if (platform === "whatsapp") {
+      // WhatsApp مع الرسالة الكاملة
       window.open(
         `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
         "_blank"
       );
     }
-  };
-
-  // Toast function
-  const showToast = (message) => {
-    const toast = document.createElement("div");
-    toast.textContent = message;
-    toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #10b981;
-    color: white;
-    padding: 16px 24px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    z-index: 9999;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    max-width: 90%;
-    text-align: center;
-    animation: slideDown 0.3s ease;
-  `;
-
-    // إضافة animation
-    const style = document.createElement("style");
-    style.textContent = `
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translate(-50%, -20px);
-      }
-      to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-      }
-    }
-  `;
-    document.head.appendChild(style);
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.remove();
-      style.remove();
-    }, 4000);
   };
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
