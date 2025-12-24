@@ -120,11 +120,20 @@ ${product.description}
 
       {/* Image Gallery */}
       <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-purple-50">
+        {/* الصورة الحالية */}
         <img
           src={images[currentImageIndex]}
           alt={product.name}
           className="w-full h-full object-cover"
         />
+
+        {/* Preload باقي الصور (مخفية) */}
+        {images.map(
+          (img, idx) =>
+            idx !== currentImageIndex && (
+              <img key={idx} src={img} alt="" className="hidden" />
+            )
+        )}
 
         {/* Image Navigation */}
         {images.length > 1 && (
