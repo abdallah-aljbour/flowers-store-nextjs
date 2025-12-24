@@ -41,7 +41,7 @@ ${product.description}
 
 💰 السعر: *${product.salePrice} دينار*
 
-بانتظار الرد 💕`
+`
     );
 
     if (platform === "instagram") {
