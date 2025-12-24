@@ -27,6 +27,36 @@ export const ProductDetails = ({ product, onBack }) => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  //   const handleOrder = (platform) => {
+  //     const message = encodeURIComponent(
+  //       `مرحباً 🌸
+
+  // أريد طلب هذه المسكة:
+
+  // 📦 *${product.name}*
+  // نوع الورد: ${product.flowerType} 💐
+
+  //  الوصف📝:
+  // ${product.description}
+
+  //  السعر: *${product.salePrice} دينار 💰*
+
+  // `
+  //     );
+
+  //     if (platform === "instagram") {
+  //       window.open(
+  //         `https://ig.me/m/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}?text=${message}`,
+  //         "_blank"
+  //       );
+  //     } else if (platform === "whatsapp") {
+  //       window.open(
+  //         `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
+  //         "_blank"
+  //       );
+  //     }
+  //   };
+
   const handleOrder = (platform) => {
     const message = encodeURIComponent(
       `مرحباً 🌸
@@ -45,10 +75,18 @@ ${product.description}
     );
 
     if (platform === "instagram") {
+      // نسخ الرسالة
+      const decodedMessage = decodeURIComponent(message);
+      navigator.clipboard.writeText(decodedMessage);
+
+      // فتح البروفايل
       window.open(
-        `https://ig.me/m/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}?text=${message}`,
+        `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`,
         "_blank"
       );
+
+      // إشعار بسيط
+      alert("✅ تم نسخ الرسالة! الصقها في Instagram");
     } else if (platform === "whatsapp") {
       window.open(
         `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
