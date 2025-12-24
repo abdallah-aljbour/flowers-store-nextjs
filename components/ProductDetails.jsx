@@ -79,15 +79,18 @@ ${product.description}
       const decodedMessage = decodeURIComponent(message);
       navigator.clipboard.writeText(decodedMessage);
 
-      // إشعار
-      alert("✅ تم نسخ تفاصيل المسكة فقط الصقها في مسجات  Instagram");
+      // عرض toast بسيط
+      showToast(
+        " تم نسخ تفاصيل المسكة! فقط الصقها في مسجات الصفحة لمراسلتنا ✅"
+      );
 
+      // فتح Instagram مباشرة
       setTimeout(() => {
         window.open(
           `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`,
           "_blank"
         );
-      }, 500); // نص ثانية بس
+      }, 3500);
     } else if (platform === "whatsapp") {
       window.open(
         `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
@@ -96,6 +99,31 @@ ${product.description}
     }
   };
 
+  // Toast function
+  const showToast = (message) => {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3500);
+  };
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       {/* Header مع زر الرجوع */}
