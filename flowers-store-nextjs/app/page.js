@@ -1,101 +1,148 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useProducts } from "hooks/useProducts";
+import ProductCard from "components/ProductCard";
+import ProductDetails from "components/ProductDetails";
+import Pagination from "components/Pagination";
+import { Loader, Flower } from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const {
+    products,
+    loading,
+    error,
+    currentPage,
+    totalPages,
+    hasMore,
+    goToNextPage,
+    goToPrevPage,
+  } = useProducts();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedProduct(null);
+  };
+
+  useEffect(() => {
+    if (selectedProduct) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedProduct]);
+
+  if (loading && currentPage === 1) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+        <Loader className="w-12 h-12 animate-spin text-pandora-pink mb-4" />
+        <p className="text-lg text-gray-600">جاري التحميل...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
+        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm">
+          <span className="text-4xl mb-4 block">⚠️</span>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">حدث خطأ</h2>
+          <p className="text-sm text-gray-600">{error}</p>
         </div>
+      </div>
+    );
+  }
+
+  if (products.length === 0 && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
+        <div className="bg-white p-10 rounded-2xl shadow-xl text-center max-w-sm">
+          <div className="w-20 h-20 bg-pandora-pink/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Flower className="w-10 h-10 text-pandora-pink" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            لا توجد منتجات
+          </h2>
+          <p className="text-sm text-gray-600">سيتم إضافة منتجات قريباً 🌸</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 pb-6">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-pandora-pink to-pink-400 rounded-full flex items-center justify-center shadow-md">
+                <Flower className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">
+                  🌸 متجر المسكات
+                </h1>
+                <p className="text-xs text-gray-600">
+                  تصاميم مميزة لأجمل المناسبات
+                </p>
+              </div>
+            </div>
+            <div className="text-left">
+              <span className="text-xs text-gray-500">الصفحة</span>
+              <p className="text-lg font-bold text-pandora-pink">
+                {currentPage}
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Products Grid */}
+      <main className="px-4 py-4">
+        {loading && currentPage > 1 && (
+          <div className="flex justify-center items-center py-8">
+            <Loader className="w-8 h-8 animate-spin text-pandora-pink" />
+          </div>
+        )}
+
+        {!loading && (
+          <>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onClick={() => handleProductClick(product)}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                hasMore={hasMore}
+                onNext={goToNextPage}
+                onPrev={goToPrevPage}
+              />
+            )}
+          </>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      {selectedProduct && (
+        <ProductDetails product={selectedProduct} onBack={handleCloseDetails} />
+      )}
     </div>
   );
 }
