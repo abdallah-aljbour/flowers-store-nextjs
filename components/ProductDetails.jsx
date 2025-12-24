@@ -79,14 +79,15 @@ ${product.description}
       const decodedMessage = decodeURIComponent(message);
       navigator.clipboard.writeText(decodedMessage);
 
-      // فتح البروفايل
-      window.open(
-        `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`,
-        "_blank"
-      );
+      // إشعار
+      alert("✅ تم نسخ تفاصيل المسكة فقط الصقها في مسجات  Instagram");
 
-      // إشعار بسيط
-      alert("✅ تم نسخ الرسالة! الصقها في Instagram");
+      setTimeout(() => {
+        window.open(
+          `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`,
+          "_blank"
+        );
+      }, 500); // نص ثانية بس
     } else if (platform === "whatsapp") {
       window.open(
         `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
