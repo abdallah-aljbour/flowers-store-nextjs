@@ -8,8 +8,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        "pandora-pink": "#F593A2",
+        "pandora-white": "#FFFFFF",
+        "pandora-black": "#000000",
       },
     },
   },
