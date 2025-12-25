@@ -6,6 +6,7 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [lastDocs, setLastDocs] = useState({}); // Store lastDoc for each page
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -32,10 +33,17 @@ export const useProducts = () => {
           hasMore: pageHasMore,
         } = await productsService.getPage(currentPage, lastDoc);
 
-        setProducts(pageProducts);
+        const filteredProducts = searchQuery
+          ? pageProducts.filter(
+              (p) =>
+                p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.description.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          : pageProducts;
+
+        setProducts(filteredProducts); // ← غيّر من pageProducts لـ filteredProducts
         setHasMore(pageHasMore);
 
-        // حفظ lastDoc للصفحة الحالية
         if (newLastDoc) {
           setLastDocs((prev) => ({ ...prev, [currentPage]: newLastDoc }));
         }
@@ -47,7 +55,7 @@ export const useProducts = () => {
     };
 
     fetchProducts();
-  }, [currentPage]);
+  }, [currentPage, searchQuery]);
 
   const goToNextPage = () => {
     if (hasMore) {
@@ -74,5 +82,6 @@ export const useProducts = () => {
     hasMore,
     goToNextPage,
     goToPrevPage,
+    setSearchQuery,
   };
 };
