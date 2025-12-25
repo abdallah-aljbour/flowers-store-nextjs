@@ -59,6 +59,31 @@ ${product.description}
       );
     }
   };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${product.name} - متجر المسكات`,
+      text: `${product.name}\n💐 ${product.flowerType}\n💰 ${product.salePrice} دينار\n\n${product.description}`,
+      url: window.location.href, // رابط الصفحة الحالية
+    };
+
+    try {
+      if (navigator.share) {
+        // Web Share API متوفر
+        await navigator.share(shareData);
+      } else {
+        // Fallback: نسخ الرابط
+        await navigator.clipboard.writeText(window.location.href);
+        alert("تم نسخ الرابط! 📋");
+      }
+    } catch (err) {
+      // إذا المستخدم ألغى أو حصل خطأ
+      if (err.name !== "AbortError") {
+        console.error("Share error:", err);
+      }
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       {/* Header مع زر الرجوع */}
@@ -84,7 +109,10 @@ ${product.description}
                 }`}
               />
             </button>
-            <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform">
+            <button
+              onClick={handleShare}
+              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            >
               <Share2 className="w-5 h-5 text-gray-700" />
             </button>
           </div>

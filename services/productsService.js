@@ -1,13 +1,13 @@
 import {
   collection,
-  getDocs,
-  getDoc,
-  doc,
   query,
   where,
   orderBy,
   limit,
+  getDocs,
   startAfter,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 
@@ -99,5 +99,15 @@ export const productsService = {
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  },
+
+  getById: async (id) => {
+    const docRef = doc(db, "products", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
   },
 };

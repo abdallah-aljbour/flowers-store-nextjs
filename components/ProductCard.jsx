@@ -3,8 +3,10 @@
 import { Heart } from "lucide-react";
 import { useState } from "react";
 import { useWishlist } from "hooks/useWishlist";
+import { useRouter } from "next/navigation";
 
 export const ProductCard = ({ product, onClick }) => {
+  const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -13,7 +15,7 @@ export const ProductCard = ({ product, onClick }) => {
 
   return (
     <div
-      onClick={onClick}
+      onClick={() => router.push(`/product/${product.id}`)}
       className="bg-white rounded-2xl overflow-hidden shadow-md active:scale-95 transition-transform duration-200 cursor-pointer"
     >
       {/* Image */}
