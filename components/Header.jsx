@@ -3,7 +3,7 @@
 import { Flower, Search, Heart, Menu, X } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FilterBar from "./FilterBar";
 
 export default function Header({
@@ -20,21 +20,78 @@ export default function Header({
   const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Hide/Show on scroll
+  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Compact mode بعد 50px
+      if (currentScrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+
+      // Hide/Show حسب الاتجاه
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        setVisible(false);
+      } else {
+        // Scrolling up
+        setVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   return (
     <>
-      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="px-4 py-4">
+      <header
+        className={`bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-transform duration-300 ${
+          visible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
+        <div
+          className={`px-4 transition-all duration-300 ${
+            scrolled ? "py-2" : "py-4"
+          }`}
+        >
           <div className="flex items-center justify-between">
             {/* Logo - Flower */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-pandora-pink to-pink-400 rounded-full flex items-center justify-center shadow-md">
-                <Flower className="w-6 h-6 text-white" />
+              <div
+                className={`bg-gradient-to-br from-pandora-pink to-pink-400 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
+                  scrolled ? "w-10 h-10" : "w-12 h-12"
+                }`}
+              >
+                <Flower
+                  className={`text-white transition-all duration-300 ${
+                    scrolled ? "w-5 h-5" : "w-6 h-6"
+                  }`}
+                />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
+                <h1
+                  className={`font-bold text-gray-900 transition-all duration-300 ${
+                    scrolled ? "text-lg" : "text-xl"
+                  }`}
+                >
                   🌸 متجر المسكات
                 </h1>
-                <p className="text-xs text-gray-600">
+                {/* الوصف يختفي في compact mode */}
+                <p
+                  className={`text-xs text-gray-600 transition-all duration-300 overflow-hidden ${
+                    scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100"
+                  }`}
+                >
                   تصاميم مميزة لأجمل المناسبات
                 </p>
               </div>
@@ -50,7 +107,11 @@ export default function Header({
           </div>
 
           {/* Search Bar */}
-          <div className="mt-3 relative">
+          <div
+            className={`relative transition-all duration-300 ${
+              scrolled ? "mt-2" : "mt-3"
+            }`}
+          >
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
