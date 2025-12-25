@@ -47,7 +47,7 @@ export default function Header({ searchQuery, onSearchChange, currentPage }) {
               placeholder="ابحث عن مسكة..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pr-10 pl-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pandora-pink/20 focus:border-pandora-pink"
+              className="w-full pr-10 pl-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-pandora-pink/20 focus:border-pandora-pink"
             />
           </div>
         </div>
