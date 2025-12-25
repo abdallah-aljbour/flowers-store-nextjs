@@ -24,4 +24,26 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
 }

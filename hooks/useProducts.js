@@ -6,10 +6,15 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [lastDocs, setLastDocs] = useState({}); // Store lastDoc for each page
+  const [lastDocs, setLastDocs] = useState({});
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    flowerTypes: [],
+    colors: [],
+    priceRange: [0, 200],
+  });
 
   // جلب إجمالي العدد (مرة واحدة)
   useEffect(() => {
@@ -20,7 +25,7 @@ export const useProducts = () => {
     fetchTotal();
   }, []);
 
-  // جلب المنتجات عند تغيير الصفحة
+  // جلب المنتجات عند تغيير الصفحة أو البحث أو الفلاتر
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -33,17 +38,40 @@ export const useProducts = () => {
           hasMore: pageHasMore,
         } = await productsService.getPage(currentPage, lastDoc);
 
-        const filteredProducts = searchQuery
-          ? pageProducts.filter(
-              (p) =>
-                p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.description.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-          : pageProducts;
+        // Filter بالبحث والفلاتر
+        const filteredProducts = pageProducts.filter((p) => {
+          // Search filter
+          const matchesSearch = searchQuery
+            ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              p.description.toLowerCase().includes(searchQuery.toLowerCase())
+            : true;
 
-        setProducts(filteredProducts); // ← غيّر من pageProducts لـ filteredProducts
+          // Flower type filter
+          const matchesFlowerType =
+            filters.flowerTypes.length > 0
+              ? filters.flowerTypes.includes(p.flowerType)
+              : true;
+
+          // Color filter
+          const matchesColor =
+            filters.colors.length > 0
+              ? p.colors.some((color) => filters.colors.includes(color))
+              : true;
+
+          // Price filter
+          const matchesPrice =
+            p.salePrice >= filters.priceRange[0] &&
+            p.salePrice <= filters.priceRange[1];
+
+          return (
+            matchesSearch && matchesFlowerType && matchesColor && matchesPrice
+          );
+        });
+
+        setProducts(filteredProducts);
         setHasMore(pageHasMore);
 
+        // حفظ lastDoc للصفحة الحالية
         if (newLastDoc) {
           setLastDocs((prev) => ({ ...prev, [currentPage]: newLastDoc }));
         }
@@ -55,7 +83,7 @@ export const useProducts = () => {
     };
 
     fetchProducts();
-  }, [currentPage, searchQuery]);
+  }, [currentPage, searchQuery, filters]);
 
   const goToNextPage = () => {
     if (hasMore) {
@@ -71,6 +99,20 @@ export const useProducts = () => {
     }
   };
 
+  const handleFilterChange = (filterType, value) => {
+    setFilters((prev) => ({ ...prev, [filterType]: value }));
+    setCurrentPage(1); // رجوع للصفحة الأولى
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      flowerTypes: [],
+      colors: [],
+      priceRange: [0, 200],
+    });
+    setCurrentPage(1);
+  };
+
   const totalPages = Math.ceil(totalCount / 20);
 
   return {
@@ -83,5 +125,8 @@ export const useProducts = () => {
     goToNextPage,
     goToPrevPage,
     setSearchQuery,
+    filters,
+    handleFilterChange,
+    clearFilters,
   };
 };

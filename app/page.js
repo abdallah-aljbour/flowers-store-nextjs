@@ -19,6 +19,9 @@ export default function Home() {
     goToNextPage,
     goToPrevPage,
     setSearchQuery: updateSearch,
+    filters,
+    handleFilterChange,
+    clearFilters,
   } = useProducts();
 
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -82,6 +85,9 @@ export default function Home() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         currentPage={currentPage}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={clearFilters}
       />
 
       {/* Products Grid */}

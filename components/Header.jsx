@@ -4,8 +4,16 @@ import { Flower, Search, Heart, Menu, X } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import FilterBar from "./FilterBar";
 
-export default function Header({ searchQuery, onSearchChange, currentPage }) {
+export default function Header({
+  searchQuery,
+  onSearchChange,
+  currentPage,
+  filters,
+  onFilterChange,
+  onClearFilters,
+}) {
   const router = useRouter();
   const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,6 +58,12 @@ export default function Header({ searchQuery, onSearchChange, currentPage }) {
               className="w-full pr-10 pl-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-pandora-pink/20 focus:border-pandora-pink"
             />
           </div>
+
+          <FilterBar
+            filters={filters}
+            onFilterChange={onFilterChange}
+            onClearAll={onClearFilters}
+          />
         </div>
       </header>
 
