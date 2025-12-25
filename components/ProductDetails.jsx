@@ -11,10 +11,11 @@ import {
   MessageCircle,
   Sparkles,
 } from "lucide-react";
+import { useWishlist } from "hooks/useWishlist";
 
 export const ProductDetails = ({ product, onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const images = product.images || [];
   const colors = product.colors || [];
@@ -26,36 +27,6 @@ export const ProductDetails = ({ product, onBack }) => {
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
-
-  //   const handleOrder = (platform) => {
-  //     const message = encodeURIComponent(
-  //       `مرحباً 🌸
-
-  // أريد طلب هذه المسكة:
-
-  // 📦 *${product.name}*
-  // نوع الورد: ${product.flowerType} 💐
-
-  //  الوصف📝:
-  // ${product.description}
-
-  //  السعر: *${product.salePrice} دينار 💰*
-
-  // `
-  //     );
-
-  //     if (platform === "instagram") {
-  //       window.open(
-  //         `https://ig.me/m/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}?text=${message}`,
-  //         "_blank"
-  //       );
-  //     } else if (platform === "whatsapp") {
-  //       window.open(
-  //         `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${message}`,
-  //         "_blank"
-  //       );
-  //     }
-  //   };
 
   const handleOrder = (platform) => {
     const message = encodeURIComponent(
@@ -102,12 +73,14 @@ ${product.description}
 
           <div className="flex gap-2">
             <button
-              onClick={() => setIsLiked(!isLiked)}
+              onClick={() => toggleWishlist(product.id)}
               className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform"
             >
               <Heart
                 className={`w-5 h-5 transition-all ${
-                  isLiked ? "fill-red-500 text-red-500" : "text-gray-700"
+                  isInWishlist(product.id)
+                    ? "fill-red-500 text-red-500"
+                    : "text-gray-700"
                 }`}
               />
             </button>

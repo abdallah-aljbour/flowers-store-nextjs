@@ -90,4 +90,14 @@ export const productsService = {
       return null;
     }
   },
+  getAll: async () => {
+    const productsRef = collection(db, "products");
+    const q = query(
+      productsRef,
+      where("isPublished", "==", true),
+      orderBy("order", "asc")
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  },
 };
