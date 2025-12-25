@@ -29,15 +29,15 @@ export default function Header({
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Compact mode بعد 50px
-      if (currentScrollY > 50) {
+      // Compact mode بعد 100px
+      if (currentScrollY > 100) {
         setScrolled(true);
       } else {
         setScrolled(false);
       }
 
       // Hide/Show حسب الاتجاه
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastScrollY && currentScrollY > 150) {
         // Scrolling down
         setVisible(false);
       } else {
@@ -55,7 +55,7 @@ export default function Header({
   return (
     <>
       <header
-        className={`bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-transform duration-300 ${
+        className={`bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all duration-300 ${
           visible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -69,7 +69,7 @@ export default function Header({
             <div className="flex items-center gap-3">
               <div
                 className={`bg-gradient-to-br from-pandora-pink to-pink-400 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
-                  scrolled ? "w-10 h-10" : "w-12 h-12"
+                  scrolled ? "w-9 h-9" : "w-12 h-12"
                 }`}
               >
                 <Flower
@@ -78,20 +78,17 @@ export default function Header({
                   }`}
                 />
               </div>
-              <div>
-                <h1
-                  className={`font-bold text-gray-900 transition-all duration-300 ${
-                    scrolled ? "text-lg" : "text-xl"
-                  }`}
-                >
+
+              {/* الاسم والوصف - يختفوا في compact mode */}
+              <div
+                className={`transition-all duration-300 overflow-hidden ${
+                  scrolled ? "w-0 opacity-0" : "w-auto opacity-100"
+                }`}
+              >
+                <h1 className="text-xl font-bold text-gray-900 whitespace-nowrap">
                   🌸 متجر المسكات
                 </h1>
-                {/* الوصف يختفي في compact mode */}
-                <p
-                  className={`text-xs text-gray-600 transition-all duration-300 overflow-hidden ${
-                    scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100"
-                  }`}
-                >
+                <p className="text-xs text-gray-600 whitespace-nowrap">
                   تصاميم مميزة لأجمل المناسبات
                 </p>
               </div>
@@ -100,16 +97,16 @@ export default function Header({
             {/* Burger Menu */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
             >
               <Menu className="w-5 h-5 text-gray-700" />
             </button>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar - يختفي في compact mode */}
           <div
-            className={`relative transition-all duration-300 ${
-              scrolled ? "mt-2" : "mt-3"
+            className={`relative transition-all duration-300 overflow-hidden ${
+              scrolled ? "max-h-0 opacity-0 mt-0" : "max-h-20 opacity-100 mt-3"
             }`}
           >
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -122,13 +119,21 @@ export default function Header({
             />
           </div>
         </div>
-        <FilterBar
-          filters={filters}
-          onFilterChange={onFilterChange}
-          onClearAll={onClearFilters}
-          sortBy={sortBy}
-          onSortChange={onSortChange}
-        />
+
+        {/* FilterBar - يختفي في compact mode */}
+        <div
+          className={`transition-all duration-300 overflow-hidden ${
+            scrolled ? "max-h-0 opacity-0" : "max-h-32 opacity-100"
+          }`}
+        >
+          <FilterBar
+            filters={filters}
+            onFilterChange={onFilterChange}
+            onClearAll={onClearFilters}
+            sortBy={sortBy}
+            onSortChange={onSortChange}
+          />
+        </div>
       </header>
 
       {/* Side Menu */}
@@ -172,9 +177,6 @@ export default function Header({
                   )}
                 </div>
               </button>
-              {/* يمكنك إضافة المزيد هنا */}
-              {/* <button className="...">من نحن</button> */}
-              {/* <button className="...">تواصل معنا</button> */}
             </div>
           </div>
         </div>
