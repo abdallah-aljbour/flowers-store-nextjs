@@ -30,7 +30,7 @@ export default function FilterBar({ filters, onFilterChange, onClearAll }) {
   const activeFiltersCount =
     filters.flowerTypes.length +
     filters.colors.length +
-    (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 200 ? 1 : 0);
+    (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 40 ? 1 : 0);
 
   return (
     <>
@@ -75,7 +75,7 @@ export default function FilterBar({ filters, onFilterChange, onClearAll }) {
           <button
             onClick={() => setActiveSheet("price")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap ${
-              filters.priceRange[0] !== 0 || filters.priceRange[1] !== 200
+              filters.priceRange[0] !== 0 || filters.priceRange[1] !== 40
                 ? "bg-pandora-pink text-white border-pandora-pink"
                 : "bg-gray-50 text-gray-700 border-gray-200"
             }`}

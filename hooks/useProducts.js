@@ -13,7 +13,7 @@ export const useProducts = () => {
   const [filters, setFilters] = useState({
     flowerTypes: [],
     colors: [],
-    priceRange: [0, 200],
+    priceRange: [0, 40],
   });
 
   // جلب إجمالي العدد (مرة واحدة)
@@ -108,7 +108,7 @@ export const useProducts = () => {
     setFilters({
       flowerTypes: [],
       colors: [],
-      priceRange: [0, 200],
+      priceRange: [0, 40],
     });
     setCurrentPage(1);
   };

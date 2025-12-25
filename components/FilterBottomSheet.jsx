@@ -8,7 +8,7 @@ export default function FilterBottomSheet({
   type = "checkbox",
   options = [],
   selected = [],
-  priceRange = [0, 200],
+  priceRange = [0, 40],
   onClose,
   onApply,
 }) {
@@ -88,7 +88,7 @@ export default function FilterBottomSheet({
                 <input
                   type="range"
                   min="0"
-                  max="200"
+                  max="40"
                   value={tempRange[0]}
                   onChange={(e) =>
                     setTempRange([parseInt(e.target.value), tempRange[1]])
@@ -105,7 +105,7 @@ export default function FilterBottomSheet({
                 <input
                   type="range"
                   min="0"
-                  max="200"
+                  max="40"
                   value={tempRange[1]}
                   onChange={(e) =>
                     setTempRange([tempRange[0], parseInt(e.target.value)])
