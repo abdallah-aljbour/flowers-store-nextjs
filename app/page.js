@@ -22,6 +22,8 @@ export default function Home() {
     filters,
     handleFilterChange,
     clearFilters,
+    sortBy,
+    setSortBy,
   } = useProducts();
 
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -88,6 +90,8 @@ export default function Home() {
         filters={filters}
         onFilterChange={handleFilterChange}
         onClearFilters={clearFilters}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
       />
 
       {/* Products Grid */}

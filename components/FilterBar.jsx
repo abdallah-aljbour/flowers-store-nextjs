@@ -1,11 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Flower, Palette, DollarSign, X, ChevronDown } from "lucide-react";
+import { Filter, ArrowUpDown, X } from "lucide-react";
 import FilterBottomSheet from "./FilterBottomSheet";
 
-export default function FilterBar({ filters, onFilterChange, onClearAll }) {
-  const [activeSheet, setActiveSheet] = useState(null);
+export default function FilterBar({
+  filters,
+  onFilterChange,
+  onClearAll,
+  sortBy,
+  onSortChange,
+}) {
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showSortSheet, setShowSortSheet] = useState(false);
 
   const flowerTypes = [
     "توليب",
@@ -34,110 +41,96 @@ export default function FilterBar({ filters, onFilterChange, onClearAll }) {
 
   return (
     <>
-      {/* Filter Chips */}
-      <div className="sticky top-[73px] px-4 py-3 border-b border-gray-200 bg-white z-40">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {/* نوع الورد */}
+      {/* Action Buttons */}
+      <div className="sticky top-[73px] px-4 pt-1 pb-3 border-b border-gray-200 bg-white z-40">
+        <div className="flex gap-2 justify-start">
+          {/* Filter Button */}
           <button
-            onClick={() => setActiveSheet("flowerType")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap ${
-              filters.flowerTypes.length > 0
-                ? "bg-pandora-pink text-white border-pandora-pink"
-                : "bg-gray-50 text-gray-700 border-gray-200"
+            onClick={() => {
+              setShowSortSheet(false);
+              setShowFilterSheet(true);
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border font-medium transition-all ${
+              activeFiltersCount > 0
+                ? "bg-pandora-pink text-white border-pandora-pink shadow-md"
+                : "bg-white text-gray-700 border-gray-300 hover:border-pandora-pink"
             }`}
           >
-            <Flower className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              نوع الورد{" "}
-              {filters.flowerTypes.length > 0 &&
-                `(${filters.flowerTypes.length})`}
-            </span>
-            <ChevronDown className="w-3 h-3" />
+            <Filter className="w-4 h-4" />
+            <span>تصفية</span>
+            {activeFiltersCount > 0 && (
+              <span className="bg-white text-pandora-pink px-2 py-0.5 rounded-full text-xs font-bold">
+                {activeFiltersCount}
+              </span>
+            )}
           </button>
 
-          {/* اللون */}
+          {/* Sort Button */}
           <button
-            onClick={() => setActiveSheet("color")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap ${
-              filters.colors.length > 0
-                ? "bg-pandora-pink text-white border-pandora-pink"
-                : "bg-gray-50 text-gray-700 border-gray-200"
+            onClick={() => {
+              setShowFilterSheet(false);
+              setShowSortSheet(true);
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border font-medium transition-all ${
+              sortBy !== "default"
+                ? "bg-pandora-pink text-white border-pandora-pink shadow-md"
+                : "bg-white text-gray-700 border-gray-300 hover:border-pandora-pink"
             }`}
           >
-            <Palette className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              اللون {filters.colors.length > 0 && `(${filters.colors.length})`}
-            </span>
-            <ChevronDown className="w-3 h-3" />
+            <ArrowUpDown className="w-4 h-4" />
+            <span>ترتيب</span>
+            {sortBy !== "default" && <span className="text-xs">✓</span>}
           </button>
 
-          {/* السعر */}
-          <button
-            onClick={() => setActiveSheet("price")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap ${
-              filters.priceRange[0] !== 0 || filters.priceRange[1] !== 40
-                ? "bg-pandora-pink text-white border-pandora-pink"
-                : "bg-gray-50 text-gray-700 border-gray-200"
-            }`}
-          >
-            <DollarSign className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              السعر{" "}
-              {(filters.priceRange[0] !== 0 || filters.priceRange[1] !== 200) &&
-                `(${filters.priceRange[0]}-${filters.priceRange[1]})`}
-            </span>
-            <ChevronDown className="w-3 h-3" />
-          </button>
-
-          {/* مسح الكل */}
-          {activeFiltersCount > 0 && (
+          {/* Reset Button - يظهر فقط لما يكون في فلاتر */}
+          {(activeFiltersCount > 0 || sortBy !== "default") && (
             <button
-              onClick={onClearAll}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 whitespace-nowrap"
+              onClick={() => {
+                onClearAll();
+                onSortChange("default");
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 border border-red-200 font-medium hover:bg-red-100 transition-all"
             >
               <X className="w-4 h-4" />
-              <span className="text-sm font-medium">مسح الكل</span>
+              <span>مسح</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Bottom Sheets */}
-      {activeSheet === "flowerType" && (
+      {/* Filter Bottom Sheet */}
+      {showFilterSheet && (
         <FilterBottomSheet
-          title="نوع الورد 🌸"
-          options={flowerTypes}
-          selected={filters.flowerTypes}
-          onClose={() => setActiveSheet(null)}
-          onApply={(selected) => {
-            onFilterChange("flowerTypes", selected);
-            setActiveSheet(null);
+          title="تصفية المنتجات 🔍"
+          type="filter"
+          filters={filters}
+          flowerTypes={flowerTypes}
+          colors={colors}
+          onClose={() => setShowFilterSheet(false)}
+          onApply={(newFilters) => {
+            Object.keys(newFilters).forEach((key) => {
+              onFilterChange(key, newFilters[key]);
+            });
+            setShowFilterSheet(false);
           }}
         />
       )}
 
-      {activeSheet === "color" && (
+      {/* Sort Bottom Sheet */}
+      {showSortSheet && (
         <FilterBottomSheet
-          title="اللون 🎨"
-          options={colors}
-          selected={filters.colors}
-          onClose={() => setActiveSheet(null)}
-          onApply={(selected) => {
-            onFilterChange("colors", selected);
-            setActiveSheet(null);
-          }}
-        />
-      )}
-
-      {activeSheet === "price" && (
-        <FilterBottomSheet
-          title="السعر 💰"
-          type="range"
-          priceRange={filters.priceRange}
-          onClose={() => setActiveSheet(null)}
-          onApply={(range) => {
-            onFilterChange("priceRange", range);
-            setActiveSheet(null);
+          title="الترتيب 🔄"
+          type="radio"
+          options={[
+            { value: "default", label: "🔄 الترتيب الافتراضي" },
+            { value: "price-low", label: "💰 الأرخص أولاً" },
+            { value: "price-high", label: "💎 الأغلى أولاً" },
+          ]}
+          selected={sortBy}
+          onClose={() => setShowSortSheet(false)}
+          onApply={(value) => {
+            onSortChange(value);
+            setShowSortSheet(false);
           }}
         />
       )}

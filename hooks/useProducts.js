@@ -10,6 +10,7 @@ export const useProducts = () => {
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("default");
   const [filters, setFilters] = useState({
     flowerTypes: [],
     colors: [],
@@ -68,7 +69,14 @@ export const useProducts = () => {
           );
         });
 
-        setProducts(filteredProducts);
+        // Sort بعد الفلترة
+        const sortedProducts = [...filteredProducts].sort((a, b) => {
+          if (sortBy === "price-low") return a.salePrice - b.salePrice;
+          if (sortBy === "price-high") return b.salePrice - a.salePrice;
+          return 0; // default order
+        });
+
+        setProducts(sortedProducts);
         setHasMore(pageHasMore);
 
         // حفظ lastDoc للصفحة الحالية
@@ -83,7 +91,7 @@ export const useProducts = () => {
     };
 
     fetchProducts();
-  }, [currentPage, searchQuery, filters]);
+  }, [currentPage, searchQuery, filters, sortBy]);
 
   const goToNextPage = () => {
     if (hasMore) {
@@ -128,5 +136,7 @@ export const useProducts = () => {
     filters,
     handleFilterChange,
     clearFilters,
+    sortBy,
+    setSortBy,
   };
 };

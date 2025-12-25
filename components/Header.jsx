@@ -13,6 +13,8 @@ export default function Header({
   filters,
   onFilterChange,
   onClearFilters,
+  sortBy,
+  onSortChange,
 }) {
   const router = useRouter();
   const { wishlistCount } = useWishlist();
@@ -58,13 +60,14 @@ export default function Header({
               className="w-full pr-10 pl-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-pandora-pink/20 focus:border-pandora-pink"
             />
           </div>
-
-          <FilterBar
-            filters={filters}
-            onFilterChange={onFilterChange}
-            onClearAll={onClearFilters}
-          />
         </div>
+        <FilterBar
+          filters={filters}
+          onFilterChange={onFilterChange}
+          onClearAll={onClearFilters}
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+        />
       </header>
 
       {/* Side Menu */}
