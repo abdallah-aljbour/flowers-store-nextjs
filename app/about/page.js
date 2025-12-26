@@ -11,9 +11,22 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
+import { useEffect } from "react";
 
 export default function AboutPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    // Scroll to partners section if hash exists
+    if (window.location.hash === "#partners") {
+      setTimeout(() => {
+        document.getElementById("partners")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
+  }, []);
 
   const partners = [
     {
@@ -165,7 +178,7 @@ export default function AboutPage() {
         </div>
 
         {/* Partners */}
-        <div className="mb-6">
+        <div id="partners" className="mb-6">
           <div className="text-center mb-4">
             <h3 className="text-xl font-bold text-gray-900 mb-2">
               🤝 شركاء النجاح

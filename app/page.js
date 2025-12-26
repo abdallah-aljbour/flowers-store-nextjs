@@ -7,9 +7,11 @@ import ProductDetails from "components/ProductDetails";
 import Pagination from "components/Pagination";
 import Header from "components/Header";
 import Footer from "components/Footer";
-import { Loader, Flower, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Loader, Flower, Search, ChevronLeft } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
   const {
     products,
     loading,
@@ -94,6 +96,32 @@ export default function Home() {
         sortBy={sortBy}
         onSortChange={setSortBy}
       />
+
+      {/* Trust Banner */}
+      <div className="bg-gradient-to-r from-pandora-pink/10 to-pink-100/20 border-b border-pandora-pink/20">
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          <button
+            onClick={() => router.push("/about#partners")}
+            className="w-full flex items-center justify-between bg-white rounded-xl p-3 shadow-sm border border-pandora-pink/30 hover:shadow-md transition-all active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-2">
+              <div className="text-xl">✨</div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-gray-900">
+                  باقة كاملة ليوم عرسك
+                </p>
+                <p className="text-xs text-gray-600">
+                  مسكة + مكياج + بدلة + كوشة
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-pandora-pink text-xs font-bold">
+              <span>اكتشفي المزيد</span>
+              <ChevronLeft className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+      </div>
 
       {/* Products Grid */}
       <main className="px-4 py-4">
