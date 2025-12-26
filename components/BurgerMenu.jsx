@@ -1,10 +1,9 @@
 "use client";
 
-import { X, ChevronDown, ChevronUp, Heart } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import FilterMenu from "./FilterMenu";
+import MultiLevelDrawer from "./MultiLevelDrawer";
 
 export default function BurgerMenu({
   isOpen,
@@ -18,163 +17,364 @@ export default function BurgerMenu({
 }) {
   const router = useRouter();
   const { wishlistCount } = useWishlist();
-  const [expandedSection, setExpandedSection] = useState(null);
+  const [tempFilters, setTempFilters] = useState(filters);
+  const [tempSort, setTempSort] = useState(sortBy);
 
-  const handleApplyFilters = (newFilters) => {
-    onFilterChange("flowerTypes", newFilters.flowerTypes);
-    onFilterChange("colors", newFilters.colors);
-    onFilterChange("priceRange", newFilters.priceRange);
-    setExpandedSection(null);
+  const flowerTypes = [
+    "توليب",
+    "ورد جوري",
+    "ليليوم",
+    "أوركيد",
+    "كاميليا",
+    "بيبي روز",
+    "ميكس",
+  ];
+  const colors = [
+    "أحمر",
+    "وردي",
+    "أبيض",
+    "أصفر",
+    "بنفسجي",
+    "برتقالي",
+    "أزرق",
+    "متعدد الألوان",
+  ];
+
+  const toggleTempFlowerType = (type) => {
+    if (tempFilters.flowerTypes.includes(type)) {
+      setTempFilters({
+        ...tempFilters,
+        flowerTypes: tempFilters.flowerTypes.filter((t) => t !== type),
+      });
+    } else {
+      setTempFilters({
+        ...tempFilters,
+        flowerTypes: [...tempFilters.flowerTypes, type],
+      });
+    }
   };
 
-  if (!isOpen) return null;
+  const toggleTempColor = (color) => {
+    if (tempFilters.colors.includes(color)) {
+      setTempFilters({
+        ...tempFilters,
+        colors: tempFilters.colors.filter((c) => c !== color),
+      });
+    } else {
+      setTempFilters({
+        ...tempFilters,
+        colors: [...tempFilters.colors, color],
+      });
+    }
+  };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose}>
-      <div
-        className="absolute left-0 top-0 h-full w-80 bg-white shadow-xl overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Menu Header */}
-        <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white z-10">
-          <h2 className="text-lg font-bold text-gray-900">القائمة</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
-          >
-            <X className="w-4 h-4 text-gray-900" />
-          </button>
+  const applyFilters = () => {
+    onFilterChange("flowerTypes", tempFilters.flowerTypes);
+    onFilterChange("colors", tempFilters.colors);
+    onFilterChange("priceRange", tempFilters.priceRange);
+    onSortChange(tempSort);
+    onClose();
+  };
+
+  const applyAndGoBack = (goBack) => {
+    onFilterChange("flowerTypes", tempFilters.flowerTypes);
+    onFilterChange("colors", tempFilters.colors);
+    onFilterChange("priceRange", tempFilters.priceRange);
+    onSortChange(tempSort);
+    goBack();
+  };
+
+  const handleClose = () => {
+    setTempFilters(filters);
+    setTempSort(sortBy);
+    onClose();
+  };
+
+  const levels = {
+    // LEVEL 1: Main Menu
+    main: {
+      title: "القائمة",
+      depth: 0,
+      showBack: false,
+      content: ({ navigateTo, MenuItem }) => (
+        <div className="p-4 space-y-1">
+          <MenuItem
+            label="الفلاتر"
+            badge={activeFiltersCount > 0 ? activeFiltersCount : ""}
+            onClick={() => navigateTo("filters")}
+          />
+          <MenuItem
+            label="الترتيب"
+            badge={tempSort !== "default" ? "✓" : ""}
+            onClick={() => navigateTo("sort")}
+          />
+          <div className="h-px bg-gray-200 my-3" />
+          <MenuItem
+            icon="💗"
+            label="المفضلة"
+            badge={wishlistCount > 0 ? wishlistCount : ""}
+            onClick={() => {
+              router.push("/wishlist");
+              handleClose();
+            }}
+            showArrow={false}
+          />
         </div>
+      ),
+    },
 
-        {/* Menu Content */}
-        <div className="p-4 space-y-3">
-          {/* Filters Accordion */}
-          <div>
-            <button
-              onClick={() =>
-                setExpandedSection(
-                  expandedSection === "filters" ? null : "filters"
-                )
-              }
-              className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-gray-900">
-                  الفلاتر ⚙️
-                </span>
-                {activeFiltersCount > 0 && (
-                  <span className="bg-pandora-pink text-white px-2 py-0.5 rounded-full text-xs font-bold">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </div>
-              {expandedSection === "filters" ? (
-                <ChevronUp className="w-4 h-4 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-gray-600" />
-              )}
-            </button>
-
-            <FilterMenu
-              filters={filters}
-              onApply={handleApplyFilters}
-              onClear={onClearFilters}
-              isOpen={expandedSection === "filters"}
-            />
-          </div>
-
-          <div className="h-px bg-gray-200" />
-
-          {/* Sort Accordion */}
-          <div>
-            <button
-              onClick={() =>
-                setExpandedSection(expandedSection === "sort" ? null : "sort")
-              }
-              className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-gray-900">
-                  الترتيب 🔄
-                </span>
-                {sortBy !== "default" && (
-                  <span className="text-xs text-pandora-pink font-bold">✓</span>
-                )}
-              </div>
-              {expandedSection === "sort" ? (
-                <ChevronUp className="w-4 h-4 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-gray-600" />
-              )}
-            </button>
-
-            {expandedSection === "sort" && (
-              <div className="mt-2 space-y-1 pr-2">
-                <label className="flex items-center gap-2 p-2.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="radio"
-                    name="sort"
-                    checked={sortBy === "default"}
-                    onChange={() => onSortChange("default")}
-                    className="w-4 h-4 text-pandora-pink border-gray-300 focus:ring-pandora-pink"
-                  />
-                  <span className="text-sm text-gray-900">
-                    🔄 الترتيب الافتراضي
-                  </span>
-                </label>
-                <label className="flex items-center gap-2 p-2.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="radio"
-                    name="sort"
-                    checked={sortBy === "price-low"}
-                    onChange={() => onSortChange("price-low")}
-                    className="w-4 h-4 text-pandora-pink border-gray-300 focus:ring-pandora-pink"
-                  />
-                  <span className="text-sm text-gray-900">💰 الأرخص أولاً</span>
-                </label>
-                <label className="flex items-center gap-2 p-2.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="radio"
-                    name="sort"
-                    checked={sortBy === "price-high"}
-                    onChange={() => onSortChange("price-high")}
-                    className="w-4 h-4 text-pandora-pink border-gray-300 focus:ring-pandora-pink"
-                  />
-                  <span className="text-sm text-gray-900">💎 الأغلى أولاً</span>
-                </label>
-              </div>
-            )}
-          </div>
-
-          <div className="h-px bg-gray-200" />
-
-          {/* Wishlist */}
-          <div>
-            <label className="text-xs font-bold text-gray-700 mb-2 block">
-              المفضلة 💗
-            </label>
+    // LEVEL 2: Filters Menu
+    filters: {
+      title: "الفلاتر",
+      depth: 1,
+      content: ({ navigateTo, MenuItem }) => (
+        <div className="p-4 pb-32 space-y-1">
+          <MenuItem
+            label="نوع الورد"
+            badge={
+              tempFilters.flowerTypes.length > 0
+                ? tempFilters.flowerTypes.length
+                : ""
+            }
+            onClick={() => navigateTo("flowerTypes")}
+          />
+          <MenuItem
+            label="اللون"
+            badge={
+              tempFilters.colors.length > 0 ? tempFilters.colors.length : ""
+            }
+            onClick={() => navigateTo("colors")}
+          />
+          <MenuItem
+            label="السعر"
+            badge={
+              tempFilters.priceRange[0] !== 0 ||
+              tempFilters.priceRange[1] !== 40
+                ? `${tempFilters.priceRange[0]}-${tempFilters.priceRange[1]}`
+                : ""
+            }
+            onClick={() => navigateTo("priceRange")}
+          />
+        </div>
+      ),
+      footer: (
+        <div className="space-y-2">
+          <button
+            onClick={applyFilters}
+            className="w-full py-3 bg-pandora-pink text-white rounded-lg font-medium hover:bg-pandora-pink/90 transition-colors"
+          >
+            تطبيق الفلاتر
+          </button>
+          {activeFiltersCount > 0 && (
             <button
               onClick={() => {
-                router.push("/wishlist");
-                onClose();
+                onClearFilters();
+                setTempFilters({
+                  flowerTypes: [],
+                  colors: [],
+                  priceRange: [0, 40],
+                });
               }}
-              className="w-full flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200 hover:border-pandora-pink transition-colors"
+              className="w-full py-2 text-sm text-red-600 hover:text-red-700 font-medium"
             >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900">
-                  المنتجات المفضلة
-                </span>
-                <Heart className="w-4 h-4 text-red-500" />
-              </div>
-              {wishlistCount > 0 && (
-                <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
-                  {wishlistCount}
-                </span>
-              )}
+              مسح الفلاتر
             </button>
+          )}
+        </div>
+      ),
+    },
+
+    // LEVEL 3: Flower Types
+    flowerTypes: {
+      title: "نوع الورد",
+      depth: 2,
+      content: ({ goBack }) => (
+        <div className="p-4 pb-24">
+          <div className="space-y-1">
+            {flowerTypes.map((flower) => (
+              <label
+                key={flower}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={tempFilters.flowerTypes.includes(flower)}
+                  onChange={() => toggleTempFlowerType(flower)}
+                  className="w-5 h-5 text-pandora-pink border-gray-300 rounded focus:ring-pandora-pink"
+                />
+                <span className="text-sm text-gray-900">{flower}</span>
+              </label>
+            ))}
           </div>
         </div>
-      </div>
-    </div>
+      ),
+      footer: ({ goBack }) => (
+        <button
+          onClick={() => applyAndGoBack(goBack)}
+          className="w-full py-3 bg-pandora-pink text-white rounded-lg font-medium hover:bg-pandora-pink/90 transition-colors"
+        >
+          تطبيق
+        </button>
+      ),
+    },
+
+    // LEVEL 3: Colors
+    colors: {
+      title: "اللون",
+      depth: 2,
+      content: ({ goBack }) => (
+        <div className="p-4 pb-24">
+          <div className="space-y-1">
+            {colors.map((color) => (
+              <label
+                key={color}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={tempFilters.colors.includes(color)}
+                  onChange={() => toggleTempColor(color)}
+                  className="w-5 h-5 text-pandora-pink border-gray-300 rounded focus:ring-pandora-pink"
+                />
+                <span className="text-sm text-gray-900">{color}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ),
+      footer: ({ goBack }) => (
+        <button
+          onClick={() => applyAndGoBack(goBack)}
+          className="w-full py-3 bg-pandora-pink text-white rounded-lg font-medium hover:bg-pandora-pink/90 transition-colors"
+        >
+          تطبيق
+        </button>
+      ),
+    },
+
+    // LEVEL 3: Price Range
+    priceRange: {
+      title: "السعر",
+      depth: 2,
+      content: () => (
+        <div className="p-4 pb-24">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between text-sm text-gray-600 font-medium">
+              <span>{tempFilters.priceRange[0]} دينار</span>
+              <span>{tempFilters.priceRange[1]} دينار</span>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-600 mb-2 block font-medium">
+                الحد الأدنى
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="40"
+                value={tempFilters.priceRange[0]}
+                onChange={(e) =>
+                  setTempFilters({
+                    ...tempFilters,
+                    priceRange: [
+                      parseInt(e.target.value),
+                      tempFilters.priceRange[1],
+                    ],
+                  })
+                }
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-pandora-pink"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-600 mb-2 block font-medium">
+                الحد الأقصى
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="40"
+                value={tempFilters.priceRange[1]}
+                onChange={(e) =>
+                  setTempFilters({
+                    ...tempFilters,
+                    priceRange: [
+                      tempFilters.priceRange[0],
+                      parseInt(e.target.value),
+                    ],
+                  })
+                }
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-pandora-pink"
+              />
+            </div>
+          </div>
+        </div>
+      ),
+      footer: ({ goBack }) => (
+        <button
+          onClick={() => applyAndGoBack(goBack)}
+          className="w-full py-3 bg-pandora-pink text-white rounded-lg font-medium hover:bg-pandora-pink/90 transition-colors"
+        >
+          تطبيق
+        </button>
+      ),
+    },
+
+    // LEVEL 2: Sort Menu
+    sort: {
+      title: "الترتيب",
+      depth: 1,
+      content: () => (
+        <div className="p-4 pb-24 space-y-1">
+          <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+            <input
+              type="radio"
+              name="sort"
+              checked={tempSort === "default"}
+              onChange={() => setTempSort("default")}
+              className="w-5 h-5 text-pandora-pink border-gray-300 focus:ring-pandora-pink"
+            />
+            <span className="text-sm text-gray-900">الترتيب الافتراضي</span>
+          </label>
+          <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+            <input
+              type="radio"
+              name="sort"
+              checked={tempSort === "price-low"}
+              onChange={() => setTempSort("price-low")}
+              className="w-5 h-5 text-pandora-pink border-gray-300 focus:ring-pandora-pink"
+            />
+            <span className="text-sm text-gray-900">الأرخص أولاً</span>
+          </label>
+          <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+            <input
+              type="radio"
+              name="sort"
+              checked={tempSort === "price-high"}
+              onChange={() => setTempSort("price-high")}
+              className="w-5 h-5 text-pandora-pink border-gray-300 focus:ring-pandora-pink"
+            />
+            <span className="text-sm text-gray-900">الأغلى أولاً</span>
+          </label>
+        </div>
+      ),
+      footer: (
+        <button
+          onClick={applyFilters}
+          className="w-full py-3 bg-pandora-pink text-white rounded-lg font-medium hover:bg-pandora-pink/90 transition-colors"
+        >
+          تطبيق الترتيب
+        </button>
+      ),
+    },
+  };
+
+  return (
+    <MultiLevelDrawer
+      isOpen={isOpen}
+      onClose={handleClose}
+      levels={levels}
+      initialLevel="main"
+    />
   );
 }
