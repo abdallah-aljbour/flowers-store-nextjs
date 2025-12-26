@@ -6,6 +6,7 @@ import ProductCard from "components/ProductCard";
 import ProductDetails from "components/ProductDetails";
 import Pagination from "components/Pagination";
 import Header from "components/Header";
+import Footer from "components/Footer";
 import { Loader, Flower, Search } from "lucide-react";
 
 export default function Home() {
@@ -159,6 +160,7 @@ export default function Home() {
       {selectedProduct && (
         <ProductDetails product={selectedProduct} onBack={handleCloseDetails} />
       )}
+      <Footer />
     </div>
   );
 }

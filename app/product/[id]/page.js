@@ -5,6 +5,7 @@ import { productsService } from "services/productsService";
 import ProductDetails from "components/ProductDetails";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Footer from "components/Footer";
 
 export default function ProductPage({ params }) {
   const router = useRouter();
@@ -59,6 +60,7 @@ export default function ProductPage({ params }) {
             العودة للرئيسية
           </button>
         </div>
+        <Footer />
       </div>
     );
   }

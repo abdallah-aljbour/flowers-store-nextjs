@@ -6,6 +6,7 @@ import { productsService } from "services/productsService";
 import ProductCard from "components/ProductCard";
 import ProductDetails from "components/ProductDetails";
 import Header from "components/Header";
+import Footer from "components/Footer";
 import { Loader, Heart, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -124,6 +125,7 @@ export default function WishlistPage() {
           onBack={() => setSelectedProduct(null)}
         />
       )}
+      <Footer />
     </div>
   );
 }
