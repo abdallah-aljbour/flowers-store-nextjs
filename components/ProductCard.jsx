@@ -4,14 +4,28 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
+import { useToast } from "contexts/ToastContext";
 
 export const ProductCard = ({ product, onClick }) => {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { success } = useToast();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const mainImage = product.images?.[0] || "/placeholder.jpg";
+
+  const handleWishlistClick = (e) => {
+    e.stopPropagation();
+    const wasInWishlist = isInWishlist(product.id);
+    toggleWishlist(product.id);
+
+    if (wasInWishlist) {
+      success("تم الحذف من المفضلة 💔");
+    } else {
+      success("تمت الإضافة للمفضلة 💗");
+    }
+  };
 
   return (
     <div
@@ -38,10 +52,7 @@ export const ProductCard = ({ product, onClick }) => {
 
         {/* Heart Button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleWishlist(product.id);
-          }}
+          onClick={handleWishlistClick}
           className="absolute top-2 right-2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
         >
           <Heart

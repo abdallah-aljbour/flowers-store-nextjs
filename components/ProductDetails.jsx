@@ -12,10 +12,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
+import { useToast } from "contexts/ToastContext";
 
 export const ProductDetails = ({ product, onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { success } = useToast();
 
   const images = product.images || [];
   const colors = product.colors || [];
@@ -26,6 +28,17 @@ export const ProductDetails = ({ product, onBack }) => {
 
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleWishlistToggle = () => {
+    const wasInWishlist = isInWishlist(product.id);
+    toggleWishlist(product.id);
+
+    if (wasInWishlist) {
+      success("تم الحذف من المفضلة 💔");
+    } else {
+      success("تمت الإضافة للمفضلة 💗");
+    }
   };
 
   const handleOrder = (platform) => {
@@ -64,20 +77,18 @@ ${product.description}
     const shareData = {
       title: `${product.name} - متجر المسكات`,
       text: `${product.name}\n💐 ${product.flowerType}\n💰 ${product.salePrice} دينار\n\n${product.description}`,
-      url: window.location.href, // رابط الصفحة الحالية
+      url: window.location.href,
     };
 
     try {
       if (navigator.share) {
-        // Web Share API متوفر
         await navigator.share(shareData);
+        success("تمت المشاركة بنجاح! 🎉");
       } else {
-        // Fallback: نسخ الرابط
         await navigator.clipboard.writeText(window.location.href);
-        alert("تم نسخ الرابط! 📋");
+        success("تم نسخ الرابط! 📋");
       }
     } catch (err) {
-      // إذا المستخدم ألغى أو حصل خطأ
       if (err.name !== "AbortError") {
         console.error("Share error:", err);
       }
@@ -98,7 +109,7 @@ ${product.description}
 
           <div className="flex gap-2">
             <button
-              onClick={() => toggleWishlist(product.id)}
+              onClick={handleWishlistToggle}
               className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform"
             >
               <Heart
