@@ -5,10 +5,11 @@ import { useWishlist } from "hooks/useWishlist";
 import { productsService } from "services/productsService";
 import ProductCard from "components/ProductCard";
 import ProductDetails from "components/ProductDetails";
-import Header from "components/Header";
+// import Header from "components/Header";
 import Footer from "components/Footer";
 import { Loader, Heart, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ProductCardSkeleton from "components/ProductCardSkeleton";
 
 export default function WishlistPage() {
   const router = useRouter();
@@ -54,15 +55,6 @@ export default function WishlistPage() {
     };
   }, [selectedProduct]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
-        <Loader className="w-12 h-12 animate-spin text-pandora-pink mb-4" />
-        <p className="text-lg text-gray-600">جاري التحميل...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 pb-6">
       {/* Header */}
@@ -86,9 +78,16 @@ export default function WishlistPage() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="px-4 py-4">
-        {products.length === 0 ? (
+        {loading ? (
+          // Skeleton Loading
+          <div className="grid grid-cols-2 gap-3">
+            {[...Array(6)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          // Empty State
           <div className="flex flex-col items-center justify-center py-16">
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-4">
               <Heart className="w-10 h-10 text-red-400" />
@@ -107,6 +106,7 @@ export default function WishlistPage() {
             </button>
           </div>
         ) : (
+          // Products Grid
           <div className="grid grid-cols-2 gap-3">
             {products.map((product) => (
               <ProductCard

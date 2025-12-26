@@ -7,6 +7,7 @@ import ProductDetails from "components/ProductDetails";
 import Pagination from "components/Pagination";
 import Header from "components/Header";
 import Footer from "components/Footer";
+import ProductCardSkeleton from "components/ProductCardSkeleton";
 import { useRouter } from "next/navigation";
 import { Loader, Flower, Search, ChevronLeft } from "lucide-react";
 
@@ -62,15 +63,6 @@ export default function Home() {
     };
   }, [selectedProduct]);
 
-  if (loading && currentPage === 1) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
-        <Loader className="w-12 h-12 animate-spin text-pandora-pink mb-4" />
-        <p className="text-lg text-gray-600">جاري التحميل...</p>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
@@ -125,9 +117,11 @@ export default function Home() {
 
       {/* Products Grid */}
       <main className="px-4 py-4">
-        {loading && currentPage > 1 && (
-          <div className="flex justify-center items-center py-8">
-            <Loader className="w-8 h-8 animate-spin text-pandora-pink" />
+        {loading && (
+          <div className="grid grid-cols-2 gap-3">
+            {[...Array(6)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
           </div>
         )}
 
