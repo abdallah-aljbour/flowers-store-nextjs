@@ -6,6 +6,7 @@ import ProductDetails from "components/ProductDetails";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
+import LoadingScreen from "components/LoadingScreen";
 
 export default function ProductPage({ params }) {
   const router = useRouter();
@@ -36,12 +37,7 @@ export default function ProductPage({ params }) {
   }, [params.id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
-        <Loader className="w-12 h-12 animate-spin text-pandora-pink mb-4" />
-        <p className="text-lg text-gray-600">جاري التحميل...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (error || !product) {

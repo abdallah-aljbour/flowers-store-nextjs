@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
 import { useToast } from "contexts/ToastContext";
+import LoadingScreen from "./LoadingScreen";
 
 export const ProductCard = ({ product, onClick }) => {
   const router = useRouter();
@@ -41,15 +42,7 @@ export const ProductCard = ({ product, onClick }) => {
   return (
     <>
       {/* Loading Overlay */}
-      {isNavigating && (
-        <div className="fixed inset-0 bg-white z-[60] flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 border-4 border-pandora-pink border-t-transparent rounded-full animate-spin mb-2" />
-            <p className="text-sm text-gray-600">جاري التحميل...</p>
-          </div>
-        </div>
-      )}
-
+      {isNavigating && <LoadingScreen />}
       <a
         href={`/product/${product.id}`}
         onClick={handleCardClick}
