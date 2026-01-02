@@ -11,6 +11,17 @@ import ProductCardSkeleton from "components/ProductCardSkeleton";
 import { useRouter } from "next/navigation";
 import { Loader, Flower, Search, ChevronLeft } from "lucide-react";
 
+export const metadata = {
+  title: "الرئيسية - مسكات عرائس فاخرة",
+  description:
+    "تصفحي أجمل مسكات العرائس من ورود طبيعية فاخرة. تصاميم فريدة لكل مناسبة. توصيل سريع لجميع مناطق الأردن.",
+  openGraph: {
+    title: "متجر المسكات - أجمل مسكات العرائس 🌸",
+    description: "تصاميم فريدة من ورود طبيعية فاخرة",
+    url: "https://flowers-store-nextjs.vercel.app",
+  },
+};
+
 export default function Home() {
   const router = useRouter();
   const {

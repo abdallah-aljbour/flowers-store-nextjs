@@ -11,6 +11,16 @@ import { Loader, Heart, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProductCardSkeleton from "components/ProductCardSkeleton";
 
+export const metadata = {
+  title: "المفضلة - مسكاتي المحفوظة 💗",
+  description:
+    "المنتجات المفضلة لديك من متجر المسكات. احفظي مسكاتك المفضلة واطلبيها لاحقاً.",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
+
 export default function WishlistPage() {
   const router = useRouter();
   const { wishlist } = useWishlist();

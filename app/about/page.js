@@ -13,6 +13,17 @@ import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
 import { useEffect } from "react";
 
+export const metadata = {
+  title: "من نحن - قصتنا وشركاؤنا",
+  description:
+    "تعرفي على متجر المسكات وشركائنا في صناعة يوم عرسك المثالي. صالون هالة برجوس، كليمانس للعرائس، وكليمانس للمناسبات.",
+  openGraph: {
+    title: "من نحن | متجر المسكات 🤝",
+    description: "قصتنا مع أفضل الشركاء في عمان",
+    url: "https://flowers-store-nextjs.vercel.app/about",
+  },
+};
+
 export default function AboutPage() {
   const router = useRouter();
 

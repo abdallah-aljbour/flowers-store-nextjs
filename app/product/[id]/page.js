@@ -8,6 +8,49 @@ import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
 import LoadingScreen from "components/LoadingScreen";
 
+export async function generateMetadata({ params }) {
+  try {
+    const product = await productsService.getById(params.id);
+
+    return {
+      title: `${product.name} - ${product.flowerType}`,
+      description: `${product.description} | السعر: ${product.salePrice} دينار | توصيل سريع لجميع مناطق الأردن`,
+      keywords: [
+        product.name,
+        product.flowerType,
+        ...product.colors,
+        "مسكات عرائس",
+        "الأردن",
+      ],
+      openGraph: {
+        title: `${product.name} 🌸`,
+        description: product.description,
+        images: [
+          {
+            url: product.images[0],
+            width: 800,
+            height: 800,
+            alt: `${product.name} - مسكة ${product.flowerType}`,
+          },
+        ],
+        type: "product",
+        url: `https://flowers-store-nextjs.vercel.app/product/${params.id}`,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${product.name} 🌸`,
+        description: product.description,
+        images: [product.images[0]],
+      },
+    };
+  } catch (error) {
+    return {
+      title: "منتج غير موجود",
+      description: "المنتج الذي تبحث عنه غير متوفر",
+    };
+  }
+}
+
 export default function ProductPage({ params }) {
   const router = useRouter();
   const [product, setProduct] = useState(null);
