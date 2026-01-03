@@ -17,7 +17,7 @@ export const metadata = {
     title: "من نحن | متجر المسكات 🤝",
     description:
       "قصتنا مع أفضل الشركاء في عمان - صالون هالة برجوس، كليمانس للعرائس، كليمانس للمناسبات",
-    url: "https://flowers-store-nextjs.vercel.app/about",
+    url: "https://maskatblooms.com/about",
     type: "website",
   },
   twitter: {

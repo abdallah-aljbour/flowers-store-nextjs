@@ -11,7 +11,7 @@ export const metadata = {
   openGraph: {
     title: "المفضلة | متجر المسكات 💗",
     description: "مسكاتي المحفوظة",
-    url: "https://flowers-store-nextjs.vercel.app/wishlist",
+    url: "https://maskatblooms.com/wishlist",
   },
 };
 

@@ -2,7 +2,7 @@ import "./globals.css";
 import { ToastProvider } from "contexts/ToastContext";
 
 export const metadata = {
-  metadataBase: new URL("https://flowers-store-nextjs.vercel.app"),
+  metadataBase: new URL("https://maskatblooms.com"),
   title: {
     default: "متجر المسكات | مسكات عرائس فاخرة في الأردن",
     template: "%s | متجر المسكات",
@@ -25,7 +25,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "ar_JO",
-    url: "https://flowers-store-nextjs.vercel.app",
+    url: "https://maskatblooms.com",
     siteName: "متجر المسكات",
     title: "متجر المسكات | مسكات عرائس فاخرة 🌸",
     description: "تصاميم مميزة لأجمل المناسبات",

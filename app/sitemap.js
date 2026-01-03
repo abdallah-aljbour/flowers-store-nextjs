@@ -1,7 +1,7 @@
 import { productsService } from "services/productsService";
 
 export default async function sitemap() {
-  const baseUrl = "https://flowers-store-nextjs.vercel.app";
+  const baseUrl = "https://maskatblooms.com";
 
   const staticPages = [
     {

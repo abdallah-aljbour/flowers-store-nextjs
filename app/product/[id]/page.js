@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
           alt: `${product.name} - مسكة ${product.flowerType}`,
         })),
         type: "website",
-        url: `https://flowers-store-nextjs.vercel.app/product/${params.id}`,
+        url: `https://maskatblooms.com/product/${params.id}`,
       },
       twitter: {
         card: "summary_large_image",
