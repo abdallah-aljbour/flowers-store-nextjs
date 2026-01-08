@@ -2,6 +2,7 @@
 
 import { Heart } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
 import { useToast } from "contexts/ToastContext";
@@ -51,19 +52,22 @@ export const ProductCard = ({ product, onClick }) => {
         <div className="bg-white rounded-2xl overflow-hidden shadow-md active:scale-95 transition-transform duration-200 cursor-pointer">
           <div className="relative aspect-square overflow-hidden bg-gray-100">
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse z-0" />
             )}
 
-            <img
+            <Image
               src={mainImage}
               alt={`مسكة ${product.flowerType} ${
                 product.colors?.join(" و") || ""
               } - ${product.name} - متجر المسكات عمان الأردن`}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className={`object-cover transition-opacity duration-300 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => setImageLoaded(true)}
               loading="lazy"
+              quality={85}
             />
 
             <button

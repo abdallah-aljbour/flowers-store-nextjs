@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   ArrowRight,
   Heart,
@@ -132,27 +133,18 @@ ${product.description}
 
       {/* Image Gallery */}
       <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-purple-50">
-        {/* الصورة الحالية */}
-        <img
+        {/* الصورة الحالية - Optimized with Next.js Image */}
+        <Image
           src={images[currentImageIndex]}
           alt={`مسكة ${product.flowerType} ${colors.join(" و") || ""} - ${
             product.name
           } - صورة ${currentImageIndex + 1} من ${images.length} - متجر المسكات`}
-          className="w-full h-full object-cover"
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority={currentImageIndex === 0}
+          quality={90}
         />
-
-        {/* Preload باقي الصور (مخفية) */}
-        {images.map(
-          (img, idx) =>
-            idx !== currentImageIndex && (
-              <img
-                key={idx}
-                src={img}
-                alt={`${product.name} - عرض إضافي`}
-                className="hidden"
-              />
-            )
-        )}
 
         {/* Image Navigation */}
         {images.length > 1 && (

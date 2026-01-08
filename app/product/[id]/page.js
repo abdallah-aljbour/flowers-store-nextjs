@@ -27,20 +27,34 @@ export async function generateMetadata({ params }) {
       openGraph: {
         title: `${product.name} 🌸`,
         description: product.description,
-        images: product.images.map((img) => ({
+        images: product.images.map((img, index) => ({
           url: img,
-          width: 800,
-          height: 800,
-          alt: `${product.name} - مسكة ${product.flowerType}`,
+          width: 1200,
+          height: 1200,
+          alt: `${product.name} - مسكة ${product.flowerType} ${
+            product.colors?.join(" و") || ""
+          } - صورة ${index + 1} من ${product.images.length} - متجر المسكات`,
+          type: "image/jpeg",
         })),
         type: "website",
         url: `https://maskatblooms.com/product/${params.id}`,
+        siteName: "متجر المسكات",
+        locale: "ar_JO",
       },
       twitter: {
         card: "summary_large_image",
         title: `${product.name} 🌸`,
         description: product.description,
-        images: [product.images[0]],
+        images: [
+          {
+            url: product.images[0],
+            alt: `${product.name} - مسكة ${product.flowerType} - متجر المسكات`,
+          },
+        ],
+      },
+      // Additional image metadata for SEO
+      alternates: {
+        canonical: `https://maskatblooms.com/product/${params.id}`,
       },
     };
   } catch (error) {
@@ -66,7 +80,15 @@ export default async function ProductPage({ params }) {
       "@context": "https://schema.org",
       "@type": "Product",
       name: product.name,
-      image: product.images,
+      image: product.images.map((img, index) => ({
+        "@type": "ImageObject",
+        url: img,
+        width: 1200,
+        height: 1200,
+        caption: `${product.name} - مسكة ${product.flowerType} - صورة ${
+          index + 1
+        }`,
+      })),
       description: product.description,
       brand: {
         "@type": "Brand",
