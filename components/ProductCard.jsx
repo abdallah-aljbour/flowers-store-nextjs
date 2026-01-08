@@ -56,7 +56,9 @@ export const ProductCard = ({ product, onClick }) => {
 
             <img
               src={mainImage}
-              alt={product.name}
+              alt={`مسكة ${product.flowerType} ${
+                product.colors?.join(" و") || ""
+              } - ${product.name} - متجر المسكات عمان الأردن`}
               className={`w-full h-full object-cover transition-opacity duration-300 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}

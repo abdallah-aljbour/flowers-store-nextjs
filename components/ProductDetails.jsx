@@ -135,7 +135,9 @@ ${product.description}
         {/* الصورة الحالية */}
         <img
           src={images[currentImageIndex]}
-          alt={product.name}
+          alt={`مسكة ${product.flowerType} ${colors.join(" و") || ""} - ${
+            product.name
+          } - صورة ${currentImageIndex + 1} من ${images.length} - متجر المسكات`}
           className="w-full h-full object-cover"
         />
 
@@ -143,7 +145,12 @@ ${product.description}
         {images.map(
           (img, idx) =>
             idx !== currentImageIndex && (
-              <img key={idx} src={img} alt="" className="hidden" />
+              <img
+                key={idx}
+                src={img}
+                alt={`${product.name} - عرض إضافي`}
+                className="hidden"
+              />
             )
         )}
 
