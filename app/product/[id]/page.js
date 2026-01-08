@@ -1,5 +1,6 @@
 import { productsService } from "services/productsService";
 import ProductPageContent from "components/ProductPageContent";
+
 export async function generateMetadata({ params }) {
   try {
     const product = await productsService.getById(params.id);
@@ -51,6 +52,56 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function ProductPage({ params }) {
-  return <ProductPageContent params={params} />;
+export default async function ProductPage({ params }) {
+  try {
+    // جلب المنتج للـ Structured Data
+    const product = await productsService.getById(params.id);
+
+    if (!product) {
+      return <ProductPageContent params={params} />;
+    }
+
+    // إنشاء Structured Data (JSON-LD)
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      image: product.images,
+      description: product.description,
+      brand: {
+        "@type": "Brand",
+        name: "متجر المسكات",
+      },
+      offers: {
+        "@type": "Offer",
+        url: `https://maskatblooms.com/product/${params.id}`,
+        priceCurrency: "JOD",
+        price: product.salePrice,
+        priceValidUntil: "2026-12-31",
+        availability: "https://schema.org/InStock",
+        seller: {
+          "@type": "Organization",
+          name: "متجر المسكات",
+        },
+      },
+      category: product.category,
+      color: product.colors,
+    };
+
+    return (
+      <>
+        {/* Structured Data Script */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+
+        {/* Page Content */}
+        <ProductPageContent params={params} />
+      </>
+    );
+  } catch (error) {
+    console.error("Error in ProductPage:", error);
+    return <ProductPageContent params={params} />;
+  }
 }
