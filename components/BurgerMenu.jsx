@@ -2,7 +2,7 @@
 
 import { useWishlist } from "hooks/useWishlist";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MultiLevelDrawer from "./MultiLevelDrawer";
 
 export default function BurgerMenu({
@@ -20,17 +20,13 @@ export default function BurgerMenu({
   const [tempFilters, setTempFilters] = useState(filters);
   const [tempSort, setTempSort] = useState(sortBy);
 
+  useEffect(() => {
+    setTempFilters(filters);
+    setTempSort(sortBy);
+  }, [filters, sortBy]);
+
   const flowerTypes = ["توليب", "كالا", " جوري", "بيوني", "ليليوم", "ميكس"];
-  const colors = [
-    "أحمر",
-    "وردي",
-    "أبيض",
-    "أصفر",
-    "بنفسجي",
-    "برتقالي",
-    "أزرق",
-    "متعدد الألوان",
-  ];
+  const colors = ["أحمر", "وردي", "أبيض", "متعدد الألوان"];
 
   const toggleTempFlowerType = (type) => {
     if (tempFilters.flowerTypes.includes(type)) {
