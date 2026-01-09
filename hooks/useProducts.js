@@ -1,6 +1,39 @@
 import { useState, useEffect } from "react";
 import { productsService } from "../services/productsService";
 
+const CACHE_KEY = "products_cache";
+const CACHE_DURATION = 10 * 1000; // 30 ثانية
+// const CACHE_DURATION = 24 * 60 * 60 * 1000; // يوم كامل
+
+const getCachedProducts = () => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const { products, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < CACHE_DURATION) {
+        return products;
+      }
+    }
+  } catch (error) {
+    console.error("Cache error:", error);
+  }
+  return null;
+};
+
+const setCachedProducts = (products) => {
+  try {
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        products,
+        timestamp: Date.now(),
+      })
+    );
+  } catch (error) {
+    console.error("Cache save error:", error);
+  }
+};
+
 export const useProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,8 +65,15 @@ export const useProducts = () => {
       try {
         setLoading(true);
 
-        // جلب كل المنتجات المنشورة
-        const allProducts = await productsService.getAll();
+        const cachedProducts = getCachedProducts();
+        let allProducts;
+
+        if (cachedProducts) {
+          allProducts = cachedProducts;
+        } else {
+          allProducts = await productsService.getAll();
+          setCachedProducts(allProducts); // احفظ في الـ cache
+        }
 
         // Filter
         const filteredProducts = allProducts.filter((p) => {
