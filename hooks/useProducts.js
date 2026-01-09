@@ -26,40 +26,32 @@ export const useProducts = () => {
     fetchTotal();
   }, []);
 
-  // جلب المنتجات عند تغيير الصفحة أو البحث أو الفلاتر
+  // جلب المنتجات مرة واحدة (كلهم)
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAllProducts = async () => {
       try {
         setLoading(true);
 
-        const lastDoc = currentPage > 1 ? lastDocs[currentPage - 1] : null;
-        const {
-          products: pageProducts,
-          lastDoc: newLastDoc,
-          hasMore: pageHasMore,
-        } = await productsService.getPage(currentPage, lastDoc);
+        // جلب كل المنتجات المنشورة
+        const allProducts = await productsService.getAll();
 
-        // Filter بالبحث والفلاتر
-        const filteredProducts = pageProducts.filter((p) => {
-          // Search filter
+        // Filter
+        const filteredProducts = allProducts.filter((p) => {
           const matchesSearch = searchQuery
             ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
               p.description.toLowerCase().includes(searchQuery.toLowerCase())
             : true;
 
-          // Flower type filter
           const matchesFlowerType =
             filters.flowerTypes.length > 0
               ? filters.flowerTypes.includes(p.flowerType)
               : true;
 
-          // Color filter
           const matchesColor =
             filters.colors.length > 0
               ? p.colors.some((color) => filters.colors.includes(color))
               : true;
 
-          // Price filter
           const matchesPrice =
             p.salePrice >= filters.priceRange[0] &&
             p.salePrice <= filters.priceRange[1];
@@ -69,20 +61,21 @@ export const useProducts = () => {
           );
         });
 
-        // Sort بعد الفلترة
+        // Sort
         const sortedProducts = [...filteredProducts].sort((a, b) => {
           if (sortBy === "price-low") return a.salePrice - b.salePrice;
           if (sortBy === "price-high") return b.salePrice - a.salePrice;
-          return 0; // default order
+          return 0;
         });
 
-        setProducts(sortedProducts);
-        setHasMore(pageHasMore);
+        // Pagination (20 لكل صفحة)
+        const startIndex = (currentPage - 1) * 20;
+        const endIndex = startIndex + 20;
+        const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
 
-        // حفظ lastDoc للصفحة الحالية
-        if (newLastDoc) {
-          setLastDocs((prev) => ({ ...prev, [currentPage]: newLastDoc }));
-        }
+        setProducts(paginatedProducts);
+        setTotalCount(sortedProducts.length);
+        setHasMore(endIndex < sortedProducts.length);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -90,7 +83,7 @@ export const useProducts = () => {
       }
     };
 
-    fetchProducts();
+    fetchAllProducts();
   }, [currentPage, searchQuery, filters, sortBy]);
 
   const goToNextPage = () => {

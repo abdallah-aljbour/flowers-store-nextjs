@@ -20,15 +20,7 @@ export default function BurgerMenu({
   const [tempFilters, setTempFilters] = useState(filters);
   const [tempSort, setTempSort] = useState(sortBy);
 
-  const flowerTypes = [
-    "توليب",
-    "ورد جوري",
-    "ليليوم",
-    "أوركيد",
-    "كاميليا",
-    "بيبي روز",
-    "ميكس",
-  ];
+  const flowerTypes = ["توليب", "كالا", " جوري", "بيوني", "ليليوم", "ميكس"];
   const colors = [
     "أحمر",
     "وردي",
