@@ -17,6 +17,7 @@ import { useToast } from "contexts/ToastContext";
 
 export const ProductDetails = ({ product, onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageLoading, setImageLoading] = useState(true);
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { success } = useToast();
 
@@ -24,10 +25,12 @@ export const ProductDetails = ({ product, onBack }) => {
   const colors = product.colors || [];
 
   const nextImage = () => {
+    setImageLoading(true);
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
 
   const prevImage = () => {
+    setImageLoading(true);
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
@@ -133,7 +136,14 @@ ${product.description}
 
       {/* Image Gallery */}
       <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-purple-50">
-        {/* الصورة الحالية - Optimized with Next.js Image */}
+        {/* Loading Skeleton */}
+        {imageLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+            <div className="w-12 h-12 border-4 border-pandora-pink border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+
+        {/* الصورة الحالية */}
         <Image
           src={images[currentImageIndex]}
           alt={`مسكة ${product.flowerType} ${colors.join(" و") || ""} - ${
@@ -141,23 +151,45 @@ ${product.description}
           } - صورة ${currentImageIndex + 1} من ${images.length} - متجر المسكات`}
           fill
           sizes="100vw"
-          className="object-cover"
+          className={`object-cover transition-opacity duration-300 ${
+            imageLoading ? "opacity-0" : "opacity-100"
+          }`}
           priority={currentImageIndex === 0}
           quality={90}
+          onLoadingComplete={() => setImageLoading(false)} // ← جديد
         />
+
+        {/* Hidden Preload Images */}
+        {images.map(
+          (img, idx) =>
+            idx !== currentImageIndex && (
+              <Image
+                key={idx}
+                src={img}
+                alt=""
+                fill
+                sizes="100vw"
+                className="hidden"
+                priority={idx === 1}
+                quality={90}
+              />
+            )
+        )}
 
         {/* Image Navigation */}
         {images.length > 1 && (
           <>
             <button
               onClick={prevImage}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+              disabled={imageLoading}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform disabled:opacity-50"
             >
               <ChevronLeft className="w-5 h-5 text-gray-700" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+              disabled={imageLoading}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform disabled:opacity-50"
             >
               <ChevronRight className="w-5 h-5 text-gray-700" />
             </button>
@@ -167,8 +199,12 @@ ${product.description}
               {images.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                  onClick={() => {
+                    setImageLoading(true);
+                    setCurrentImageIndex(index);
+                  }}
+                  disabled={imageLoading}
+                  className={`w-1.5 h-1.5 rounded-full transition-all disabled:opacity-50 ${
                     index === currentImageIndex ? "bg-white w-5" : "bg-white/50"
                   }`}
                 />
