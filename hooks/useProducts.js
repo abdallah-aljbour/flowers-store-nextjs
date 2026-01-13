@@ -59,7 +59,12 @@ export const useProducts = () => {
     fetchTotal();
   }, []);
 
-  // جلب المنتجات مرة واحدة (كلهم)
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  }, [currentPage]);
+
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
@@ -129,14 +134,12 @@ export const useProducts = () => {
   const goToNextPage = () => {
     if (hasMore) {
       setCurrentPage((prev) => prev + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const goToPrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
