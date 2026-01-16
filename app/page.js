@@ -1,5 +1,7 @@
 import HomeContent from "components/HomeContent";
 
+import HomeContent from "components/HomeContent";
+
 export const metadata = {
   title: "مسكات عرائس فاخرة",
   description:
@@ -7,7 +9,14 @@ export const metadata = {
   openGraph: {
     title: "متجر المسكات - أجمل مسكات العرائس 🌸",
     description: "تصاميم فريدة من ورود طبيعية فاخرة",
-    url: "https://yoursite.com",
+    url: "https://maskatblooms.com",
+    images: [
+      {
+        url: "https://maskatblooms.com/maskatbloomsImage.jpg",
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
 };
 
