@@ -153,7 +153,7 @@ export default function AboutPageContenet() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-gray-900 mb-1">
-                  ورود طبيعية فاخرة
+                  ورود فاخرة
                 </h4>
                 <p className="text-xs text-gray-600">
                   نختار أجود أنواع الورود لضمان جودة عالية ومظهر رائع
