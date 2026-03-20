@@ -101,8 +101,10 @@ export const useProducts = () => {
             p.salePrice >= filters.priceRange[0] &&
             p.salePrice <= filters.priceRange[1];
 
+          const isNotBag = p.type !== "bag";
+
           return (
-            matchesSearch && matchesFlowerType && matchesColor && matchesPrice
+            isNotBag && matchesSearch && matchesFlowerType && matchesColor && matchesPrice
           );
         });
 
