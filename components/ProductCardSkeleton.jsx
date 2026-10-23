@@ -1,19 +1,11 @@
+// Catalog card placeholder (DESIGN_SPEC §3.11): 3:4 photo block + two text bars.
 export default function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-md motion-safe:animate-pulse">
-      {/* Image skeleton */}
-      <div className="aspect-square bg-gray-200" />
-
-      {/* Content skeleton */}
-      <div className="p-3 space-y-2">
-        {/* Title */}
-        <div className="h-4 bg-gray-200 rounded w-3/4" />
-
-        {/* Price & Category */}
-        <div className="flex items-center justify-between">
-          <div className="h-5 bg-gray-200 rounded w-16" />
-          <div className="h-3 bg-gray-200 rounded w-20" />
-        </div>
+    <div aria-hidden="true" className="motion-safe:animate-pulse">
+      <div className="aspect-[3/4] rounded-card bg-champagne-photo" />
+      <div className="mt-3 space-y-2">
+        <div className="h-4 w-3/4 rounded-full bg-champagne" />
+        <div className="h-3 w-1/2 rounded-full bg-champagne" />
       </div>
     </div>
   );

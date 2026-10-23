@@ -40,39 +40,24 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={{ success, error, info }}>
       {children}
 
-      {/* Toast Container */}
-      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none">
+      {/* Toast Container — ink pill under the header */}
+      <div
+        role="status"
+        aria-live="polite"
+        className="fixed top-[76px] inset-x-4 z-[100] flex flex-col items-center gap-2 pointer-events-none"
+      >
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className="pointer-events-auto animate-slide-down bg-white rounded-lg shadow-xl border px-4 py-3 flex items-center gap-3 min-w-[280px] max-w-[400px]"
+            className="mb-toast flex items-center justify-center gap-2 w-full max-w-[400px] min-h-[48px] px-[18px] py-2.5 rounded-full bg-ink text-white text-sm font-medium text-center shadow-float"
           >
-            {toast.type === "success" && (
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-5 h-5 text-white" />
-              </div>
-            )}
             {toast.type === "error" && (
-              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <X className="w-5 h-5 text-white" />
-              </div>
+              <X className="w-4 h-4 shrink-0" aria-hidden="true" />
             )}
-            {toast.type === "info" && (
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-sm">i</span>
-              </div>
+            {toast.type === "success" && (
+              <Check className="w-4 h-4 shrink-0" aria-hidden="true" />
             )}
-
-            <span className="text-sm text-gray-900 font-medium flex-1">
-              {toast.message}
-            </span>
-
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0"
-            >
-              <X className="w-3.5 h-3.5 text-gray-600" />
-            </button>
+            <span>{toast.message}</span>
           </div>
         ))}
       </div>
