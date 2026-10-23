@@ -52,7 +52,7 @@ export const ProductCard = ({ product, onClick }) => {
         <div className="bg-white rounded-2xl overflow-hidden shadow-md active:scale-95 transition-transform duration-200 cursor-pointer">
           <div className="relative aspect-square overflow-hidden bg-gray-100">
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse z-0" />
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 motion-safe:animate-pulse z-0" />
             )}
 
             <Image

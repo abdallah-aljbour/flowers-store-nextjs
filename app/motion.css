@@ -1,0 +1,105 @@
+/* Maskat Blooms — Pearl Champagne motion layer (from design-handoff/motion/motion.css)
+   Only transform, opacity and clip-path are animated. Content is never hidden by default;
+   reveal classes animate only once JS adds `.is-in`. Everything collapses under reduced motion. */
+/* ---------- easing ---------- */
+:root{
+  --ease-soft: cubic-bezier(.22,.8,.25,1);
+  --ease-spring: cubic-bezier(.3,1.4,.5,1);
+}
+
+/* ---------- 1 · page transition (used by app/template.js) ---------- */
+@keyframes mbPageIn{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.mb-page{animation:mbPageIn .34s var(--ease-soft) both}
+
+/* ---------- 2 · logo intro (first visit per session) ---------- */
+@keyframes mbWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes mbLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes mbFadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes mbIntroOut{to{opacity:0;transform:translateY(-24px);visibility:hidden}}
+.mb-intro{animation:mbIntroOut .55s 1.35s cubic-bezier(.6,0,.3,1) forwards}
+.mb-intro-logo{animation:mbWipe 1s .1s cubic-bezier(.65,0,.35,1) both}
+.mb-intro-line{transform-origin:right;animation:mbLine .7s .7s var(--ease-soft) both}
+.mb-intro-name{animation:mbFadeUp .5s .85s ease both}
+
+/* ---------- 3 · hero ---------- */
+@keyframes mbWord{from{opacity:0;transform:translateY(60%)}to{opacity:1;transform:none}}
+@keyframes mbZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
+.mb-word{display:inline-block;animation:mbWord .8s var(--ease-soft) both}   /* set animation-delay per word: 90ms steps */
+.mb-zoom{animation:mbZoom 1.6s var(--ease-soft) both}                          /* hero image only; never hide it (LCP) */
+
+/* ---------- 4 · scroll reveals (JS adds .is-in via useReveal) ---------- */
+@keyframes mbUnveil{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes mbSettle{from{transform:scale(1.12)}to{transform:scale(1)}}
+@keyframes mbRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.mb-curtain.is-in{animation:mbUnveil 1s cubic-bezier(.65,0,.35,1) both}
+.mb-curtain.is-in img{animation:mbSettle 1.4s var(--ease-soft) both}
+.mb-rv.is-in{animation:mbRise .7s var(--ease-soft) both}
+
+/* ---------- 5 · package story (sticky, scroll-driven chapters) ---------- */
+.mb-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s .25s}
+.mb-layer.is-on{opacity:1;visibility:visible;transition:opacity .2s ease}
+@keyframes mbIris{from{clip-path:circle(0% at 50% 50%)}to{clip-path:circle(50% at 50% 50%)}}
+@keyframes mbRing{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.mb-layer.is-on .mb-disc{animation:mbIris .8s cubic-bezier(.65,0,.35,1) both}
+.mb-layer.is-on .mb-halo{animation:mbRing .9s var(--ease-soft) both}
+.mb-layer.is-on .mb-ch1{animation:mbFadeUp .6s .25s var(--ease-soft) both}
+.mb-layer.is-on .mb-ch2{animation:mbFadeUp .6s .35s var(--ease-soft) both}
+.mb-layer.is-on .mb-ch3{animation:mbFadeUp .6s .45s var(--ease-soft) both}
+.mb-bar{transition:background-color .4s ease,flex-grow .5s var(--ease-soft)}
+
+/* ---------- 6 · photo strip (marquee) — RTL direction ---------- */
+@keyframes mbMarq{from{transform:translateX(0)}to{transform:translateX(50%)}}
+.mb-marquee{display:flex;width:max-content;animation:mbMarq 36s -6s linear infinite}  /* render the list twice */
+.mb-marquee-wrap.is-off .mb-marquee,
+.mb-marquee-wrap:hover .mb-marquee,
+.mb-marquee-wrap:active .mb-marquee,
+.mb-marquee-wrap:focus-within .mb-marquee{animation-play-state:paused}
+
+/* ---------- 7 · hearts, badge, toast, FAB ---------- */
+@keyframes mbPop{0%{transform:scale(1)}35%{transform:scale(.8)}65%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes mbBurst{0%{opacity:0;transform:translate(0,0) scale(.4)}25%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1) rotate(80deg)}}
+@keyframes mbBump{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes mbToastIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes mbFabIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.mb-pop{display:flex;animation:mbPop .45s var(--ease-spring) both}
+.mb-petal{position:absolute;top:50%;left:50%;width:7px;height:9px;margin:-4px 0 0 -3px;border-radius:70% 0 70% 0;animation:mbBurst .7s ease-out both;pointer-events:none}
+.mb-bump{animation:mbBump .4s var(--ease-spring) both}
+.mb-toast{animation:mbToastIn .3s ease both}
+.mb-fab{animation:mbFabIn .45s var(--ease-spring) both}
+
+/* ---------- 8 · sheets, drawer, order bar ---------- */
+@keyframes mbFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes mbFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes mbSheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes mbSheetOut{from{transform:none}to{transform:translateY(100%)}}
+@keyframes mbDrawerIn{from{transform:translateX(100%)}to{transform:none}}
+@keyframes mbDrawerOut{from{transform:none}to{transform:translateX(100%)}}
+@keyframes mbBarIn{from{transform:translateY(115%)}to{transform:none}}
+@keyframes mbShine{0%,72%{transform:translateX(160%) skewX(-20deg)}100%{transform:translateX(-260%) skewX(-20deg)}}
+.mb-scrim-in{animation:mbFadeIn .3s ease both}.mb-scrim-out{animation:mbFadeOut .26s ease both}
+.mb-sheet-in{animation:mbSheetIn .42s var(--ease-soft) both}.mb-sheet-out{animation:mbSheetOut .26s ease-in both}
+.mb-drawer-in{animation:mbDrawerIn .38s var(--ease-soft) both}.mb-drawer-out{animation:mbDrawerOut .26s ease-in both}
+.mb-drawer-in .mb-drawer-link{animation:mbFadeUp .5s var(--ease-soft) both}   /* stagger 50ms via inline delay */
+.mb-bar-in{animation:mbBarIn .42s .2s var(--ease-soft) both}
+.mb-shine{position:absolute;top:0;bottom:0;width:40%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.3),rgba(255,255,255,0));animation:mbShine 5s ease-in-out infinite;pointer-events:none}
+
+/* ---------- 9 · press + hover ---------- */
+.mb-tap{transition:transform .12s ease}
+.mb-tap:active{transform:scale(.97)}
+.mb-lift img{transition:transform .6s var(--ease-soft)}
+@media (hover:hover){ .mb-lift:hover img{transform:scale(1.04)} }
+
+/* ---------- 10 · reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .mb-page{animation:mbFadeIn .15s ease both}
+  .mb-intro{display:none}
+  .mb-word,.mb-zoom,.mb-pop,.mb-bump,.mb-toast,.mb-fab,.mb-bar-in,.mb-sheet-in,.mb-drawer-in,.mb-drawer-in .mb-drawer-link{animation:none}
+  .mb-sheet-out,.mb-drawer-out,.mb-scrim-out{animation:mbFadeOut .12s ease both}
+  .mb-marquee{animation:none;transform:none}
+  .mb-curtain.is-in,.mb-curtain.is-in img,.mb-rv.is-in{animation:none}
+  .mb-layer,.mb-layer.is-on,.mb-bar{transition:none}
+  .mb-layer.is-on .mb-disc,.mb-layer.is-on .mb-halo,.mb-layer.is-on .mb-ch1,.mb-layer.is-on .mb-ch2,.mb-layer.is-on .mb-ch3{animation:none}
+  .mb-petal,.mb-shine{display:none}
+  .mb-tap:active{transform:none}
+  .mb-lift img{transition:none}
+}
