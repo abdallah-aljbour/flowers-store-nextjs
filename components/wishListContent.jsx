@@ -11,11 +11,12 @@ import Header from "components/Header";
 import Footer from "components/Footer";
 import Button from "components/ui/Button";
 import HeartButton from "components/ui/HeartButton";
-import WhatsAppIcon from "components/ui/WhatsAppIcon";
+import OrderLink from "components/ui/OrderLink";
+import { BouquetIcon } from "components/ui/LineIcons";
 import { Eyebrow } from "components/ui/SectionHeading";
 import { splitName } from "lib/splitName";
 import { flowerTypeDisplay } from "lib/catalogOptions";
-import { whatsappOrderUrl } from "lib/whatsappMessage";
+import { productAlt } from "lib/productAlt";
 import { SHOP_PATH } from "lib/navigation";
 
 export default function WishlistPageContent() {
@@ -146,27 +147,6 @@ function tagLine(product) {
     .join(" · ");
 }
 
-function productAlt(product) {
-  return `مسكة ${product.flowerType} ${
-    product.colors?.join(" و") || ""
-  } - ${product.name} - متجر المسكات عمان الأردن`;
-}
-
-function OrderLink({ product, name, className = "", children }) {
-  return (
-    <a
-      href={whatsappOrderUrl(product)}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`اطلبي ${name} عبر واتساب`}
-      className={`mb-tap inline-flex items-center justify-center gap-1.5 rounded-full bg-whatsapp text-white font-semibold ${className}`}
-    >
-      <WhatsAppIcon className="w-4 h-4 shrink-0" strokeWidth={1.8} />
-      {children}
-    </a>
-  );
-}
-
 // Mobile row: image 108×140 · names · tag · price · heart · اطلبي
 function WishlistRow({ product }) {
   const { ar, en } = splitName(product.name);
@@ -282,26 +262,7 @@ function EmptyState() {
     <div className="flex flex-col items-center justify-center text-center px-9 pt-10 pb-20 gap-3.5">
       <div className="mb-2.5 w-[190px] h-[190px] rounded-full border border-line-gold flex items-center justify-center">
         <div className="w-[170px] h-[170px] rounded-full bg-champagne flex items-center justify-center">
-          <svg
-            width="92"
-            height="92"
-            viewBox="0 0 96 96"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            className="text-rose"
-          >
-            <path d="M48 22c-3-5-10-6-12-1-2 4 2 9 6 9" />
-            <path d="M48 22c3-5 10-6 12-1 2 4-2 9-6 9" />
-            <circle cx="48" cy="28" r="6" />
-            <circle cx="34" cy="34" r="6" />
-            <circle cx="62" cy="34" r="6" />
-            <path d="M34 40l10 18M62 40L52 58M48 34v24" />
-            <path d="M40 56h16l-3 26h-10z" />
-          </svg>
+          <BouquetIcon size={92} className="text-rose" />
         </div>
       </div>
       <h2 className="font-display font-bold text-[30px] leading-[1.3] text-ink">قائمتكِ فارغة الآن</h2>

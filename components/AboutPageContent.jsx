@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
 import { useEffect } from "react";
+import { PARTNERS } from "lib/partners";
 
 export default function AboutPageContenet() {
   const router = useRouter();
@@ -27,33 +28,6 @@ export default function AboutPageContenet() {
       }, 100);
     }
   }, []);
-
-  const partners = [
-    {
-      nameAr: "صالون هالة برجوس",
-      nameEn: "Hala Beauty Center",
-      description: "خبراء التجميل لإطلالة مثالية",
-      icon: "💄",
-      instagram: "https://www.instagram.com/halabeautycenter",
-      location: "الصويفية",
-    },
-    {
-      nameAr: "ازياء كليمانس للعرائس",
-      nameEn: "Clemance Bridal",
-      description: "أجمل بدلات العرائس",
-      icon: "👗",
-      instagram: "https://www.instagram.com/clemancebridal",
-      location: "الصويفية",
-    },
-    {
-      nameAr: "كليمانس للمناسبات",
-      nameEn: "Clemance Events",
-      description: "تصميم كوشات وتنسيق حفلات",
-      icon: "🎊",
-      instagram: "https://www.instagram.com/clemance.events",
-      location: "الصويفية",
-    },
-  ];
 
   const stats = [
     { number: "500+", label: "عروس سعيدة" },
@@ -189,7 +163,7 @@ export default function AboutPageContenet() {
           </div>
 
           <div className="space-y-3">
-            {partners.map((partner, index) => (
+            {PARTNERS.map((partner, index) => (
               <div
                 key={index}
                 className="bg-white rounded-xl p-4 shadow-sm border border-gray-200"

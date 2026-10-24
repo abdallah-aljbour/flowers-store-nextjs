@@ -26,6 +26,7 @@
 @keyframes mbWord{from{opacity:0;transform:translateY(60%)}to{opacity:1;transform:none}}
 @keyframes mbZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
 .mb-word{display:inline-block;animation:mbWord .8s var(--ease-soft) both}   /* set animation-delay per word: 90ms steps */
+.mb-hero-in{animation:mbWord .8s var(--ease-soft) both}                     /* same rise for hero blocks (keeps their display) */
 .mb-zoom{animation:mbZoom 1.6s var(--ease-soft) both}                          /* hero image only; never hide it (LCP) */
 
 /* ---------- 4 · scroll reveals (JS adds .is-in via useReveal) ---------- */
@@ -94,7 +95,7 @@
 @media (prefers-reduced-motion: reduce){
   .mb-page{animation:mbFadeIn .15s ease backwards}
   .mb-intro{display:none}
-  .mb-word,.mb-zoom,.mb-pop,.mb-bump,.mb-toast,.mb-fab,.mb-bar-in,.mb-sheet-in,.mb-drawer-in,.mb-drawer-in .mb-drawer-link{animation:none}
+  .mb-word,.mb-hero-in,.mb-zoom,.mb-pop,.mb-bump,.mb-toast,.mb-fab,.mb-bar-in,.mb-sheet-in,.mb-drawer-in,.mb-drawer-in .mb-drawer-link{animation:none}
   .mb-sheet-out,.mb-drawer-out,.mb-scrim-out{animation:mbFadeOut .12s ease both}
   .mb-marquee{animation:none;transform:none}
   .mb-curtain.is-in,.mb-curtain.is-in img,.mb-rv.is-in{animation:none}
