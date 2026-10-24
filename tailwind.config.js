@@ -11,11 +11,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Legacy colors — removed in the cleanup phase
-        "pandora-pink": "#F593A2",
-        "pandora-white": "#FFFFFF",
-        "pandora-black": "#000000",
-
         // Pearl Champagne (contrast notes in design-handoff/tokens)
         pearl: "#FFFDF9", // page background
         champagne: {
