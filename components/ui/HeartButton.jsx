@@ -66,7 +66,9 @@ export default function HeartButton({
       onClick={handleClick}
       aria-pressed={saved}
       aria-label={label}
-      className={`mb-tap relative inline-flex items-center justify-center w-11 h-11 shrink-0 ${className}`}
+      className={`mb-tap inline-flex items-center justify-center w-11 h-11 shrink-0 ${
+        /\b(absolute|fixed|sticky)\b/.test(className) ? "" : "relative"
+      } ${className}`}
     >
       <span
         aria-hidden="true"

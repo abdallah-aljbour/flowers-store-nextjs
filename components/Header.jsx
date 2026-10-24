@@ -101,19 +101,6 @@ export default function Header({ catalog }) {
               <Search className="w-5 h-5" strokeWidth={1.6} aria-hidden="true" />
             </Link>
             {wishlistButton}
-            {/* Opens the drawer on desktop too, so catalog filters stay reachable */}
-            <button
-              type="button"
-              onClick={() => setMenuOpen(true)}
-              aria-label="فتح القائمة"
-              aria-haspopup="dialog"
-              aria-expanded={menuOpen}
-              className={`${iconLink} border border-line text-ink ${catalog ? "" : "hidden"}`}
-            >
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
-                <path d="M4 7h16M4 12h16M4 17h10" />
-              </svg>
-            </button>
             <Button variant="whatsapp" href={WHATSAPP_URL} external className="!min-h-[44px] !px-[18px] text-sm">
               <WhatsAppIcon className="w-[18px] h-[18px]" />
               تواصلي معنا

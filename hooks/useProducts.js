@@ -43,6 +43,7 @@ export const useProducts = () => {
   const [lastDocs, setLastDocs] = useState({});
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [resultCount, setResultCount] = useState(0); // عدد النتائج بعد الفلترة (للعرض فقط)
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
   const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE);
@@ -140,6 +141,7 @@ export const useProducts = () => {
 
         setProducts(paginatedProducts);
         setTotalCount(sortedProducts.length);
+        setResultCount(sortedProducts.length);
         setHasMore(endIndex < sortedProducts.length);
       } catch (err) {
         setError(err.message);
@@ -195,5 +197,6 @@ export const useProducts = () => {
     sortBy,
     setSortBy,
     maxPrice,
+    resultCount,
   };
 };
