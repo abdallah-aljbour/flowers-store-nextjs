@@ -81,7 +81,7 @@ function Hero({ featured }) {
   ];
 
   return (
-    <section className="relative mx-3 mt-2 h-[580px] rounded-hero overflow-hidden bg-champagne-photo flex flex-col justify-end px-5 py-6 lg:h-auto lg:overflow-visible lg:rounded-none lg:bg-transparent lg:max-w-container lg:mx-auto lg:px-6 lg:pt-12 lg:pb-0 lg:grid lg:grid-cols-2 lg:gap-14 lg:items-center">
+    <section className="relative lg:mt-2 h-[580px] rounded-b-hero overflow-hidden bg-champagne-photo flex flex-col justify-end px-5 py-6 lg:h-auto lg:overflow-visible lg:rounded-none lg:bg-transparent lg:max-w-container lg:mx-auto lg:px-6 lg:pt-12 lg:pb-0 lg:grid lg:grid-cols-2 lg:gap-14 lg:items-center">
       {/* Photo column (mobile: full card behind the text) */}
       <div className="absolute inset-0 lg:relative lg:inset-auto lg:order-2 lg:min-h-[640px]">
         <div className="absolute inset-0 overflow-hidden lg:left-[72px] lg:rounded-[34px] lg:bg-champagne-photo">
