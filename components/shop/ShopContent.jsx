@@ -15,7 +15,6 @@ import Pagination from "components/Pagination";
 import FilterSidebar from "components/shop/FilterSidebar";
 import Chip from "components/ui/Chip";
 import Button from "components/ui/Button";
-import WhatsAppFab, { FAB_CLEARANCE } from "components/ui/WhatsAppFab";
 import { Eyebrow } from "components/ui/SectionHeading";
 import {
   FLOWER_TYPES,
@@ -105,10 +104,26 @@ export default function ShopContent({ initialProducts = null }) {
 
   // After a chip, filter, sort, search or page change: bring the top of the results just
   // below the sticky header (+ the mobile tools bar). Only when the reader is scrolled past it.
+  // The new results (or the loading skeleton) replace the grid right after this runs, and the
+  // page usually gets much shorter: the browser would clamp the scroll position mid-animation
+  // (a jump, then a stalled or cancelled smooth scroll on phones). So the results area keeps its
+  // height until the new results are in and the scroll has finished.
   const resultsRef = useRef(null);
   const toolsRef = useRef(null);
   const firstView = useRef(true);
-  useEffect(() => {
+  const loadingRef = useRef(loading);
+  loadingRef.current = loading;
+  const heightLock = useRef(null); // { scrolled, stop }
+
+  const releaseHeight = () => {
+    const lock = heightLock.current;
+    if (!lock || !lock.scrolled || loadingRef.current) return;
+    lock.stop();
+    heightLock.current = null;
+    if (resultsRef.current) resultsRef.current.style.minHeight = "";
+  };
+
+  useBrowserLayoutEffect(() => {
     if (firstView.current) {
       firstView.current = false;
       return;
@@ -117,11 +132,55 @@ export default function ShopContent({ initialProducts = null }) {
     if (!results) return;
     const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
     const toolsHeight = toolsRef.current?.offsetParent ? toolsRef.current.offsetHeight : 0; // mobile only
-    const top = results.getBoundingClientRect().top + window.scrollY - headerHeight - toolsHeight - 12;
-    if (window.scrollY <= top) return;
+    const target = Math.max(
+      0,
+      Math.round(results.getBoundingClientRect().top + window.scrollY - headerHeight - toolsHeight - 12)
+    );
+    if (window.scrollY <= target) return;
+
+    heightLock.current?.stop();
+    results.style.minHeight = `${results.offsetHeight}px`;
+
+    // Scroll finished: reached the target, stopped moving (interrupted), or the reader took over
+    let frame = 0;
+    let last = -1;
+    let still = 0;
+    const started = performance.now();
+    const lock = { scrolled: false };
+    const done = () => {
+      lock.scrolled = true;
+      releaseHeight();
+    };
+    const watch = () => {
+      const y = window.scrollY;
+      still = Math.abs(y - last) < 1 ? still + 1 : 0;
+      last = y;
+      if (Math.abs(y - target) < 2 || still >= 8 || performance.now() - started > 1500) done();
+      else frame = requestAnimationFrame(watch);
+    };
+    const userScroll = () => done();
+    lock.stop = () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("touchstart", userScroll);
+      window.removeEventListener("wheel", userScroll);
+    };
+    window.addEventListener("touchstart", userScroll, { passive: true });
+    window.addEventListener("wheel", userScroll, { passive: true });
+    heightLock.current = lock;
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: Math.max(0, top), behavior: reduce ? "auto" : "smooth" });
+    window.scrollTo({ top: target, behavior: reduce ? "auto" : "smooth" });
+    frame = requestAnimationFrame(watch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortBy, currentPage, appliedSearch]);
+
+  // New results rendered → release the height once the scroll is done
+  useEffect(() => {
+    releaseHeight();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, products]);
+
+  useEffect(() => () => heightLock.current?.stop(), []);
 
   useReveal([products]);
 
@@ -304,8 +363,7 @@ export default function ShopContent({ initialProducts = null }) {
         </main>
       </div>
 
-      <Footer compact className={FAB_CLEARANCE} />
-      <WhatsAppFab />
+      <Footer compact />
     </div>
   );
 }

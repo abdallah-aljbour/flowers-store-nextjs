@@ -7,10 +7,10 @@ import { WHATSAPP_URL } from "lib/contact";
 // Bottom padding for the footer of pages that show the FAB, so its last links scroll clear of it
 export const FAB_CLEARANCE = "max-lg:pb-[96px]";
 
-// Floating WhatsApp button (mobile only): Home, /shop, About. Not on the product page (order bar)
-// or the wishlist (every item has «اطلبي»). One rule everywhere: it fades out while any in-page
-// WhatsApp button (marked with WA_CTA, lib/contact) is on screen, and while a drawer/sheet is open
-// (data-dialog-open, see useFocusTrap).
+// Floating WhatsApp button (mobile only): Home and About. Not on /shop (keeps the product grid
+// calm on small screens), the product page (order bar) or the wishlist (every item has «اطلبي»).
+// It fades out while any in-page WhatsApp button (marked with WA_CTA, lib/contact) is on screen,
+// and while a drawer/sheet is open (data-dialog-open, see useFocusTrap).
 // The default delay lets the page slide in first (app/template.js), so the button never rides along.
 export default function WhatsAppFab({ style = { animationDelay: ".35s" } }) {
   const ctaOnScreen = useWhatsAppCtaOnScreen();
