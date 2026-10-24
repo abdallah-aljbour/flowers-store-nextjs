@@ -3,8 +3,8 @@ import { productsService } from "services/productsService";
 import ProductPageContent from "components/ProductPageContent";
 
 // Cached page (ISR, like /shop): served at once and refreshed in the background at most once
-// a minute; the client still refreshes the product on load. Prefetched links get the whole page.
-export const revalidate = 60;
+// an hour; the browser uses it as is (no Firebase read on load). Prefetched links get the whole page.
+export const revalidate = 3600;
 
 // Nothing built ahead: each product page is cached the first time it is opened
 export async function generateStaticParams() {

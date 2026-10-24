@@ -1,8 +1,8 @@
 import { productsService } from "services/productsService";
 import ShopContent from "components/shop/ShopContent";
 
-// Rebuilt at most once a minute; the client still refreshes from Firebase on load
-export const revalidate = 60;
+// Rebuilt at most once an hour; the browser uses this list as is (no Firebase read on load)
+export const revalidate = 3600;
 
 export const metadata = {
   title: "المجموعة - مسكات عرائس فاخرة",
