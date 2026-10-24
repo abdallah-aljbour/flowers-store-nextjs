@@ -90,6 +90,7 @@ function Hero({ featured }) {
             alt="عروس تحمل مسكة توليب بيضاء"
             fill
             priority
+            quality={60}
             sizes="(min-width: 1240px) 520px, (min-width: 1024px) 42vw, 100vw"
             className="mb-zoom object-cover object-[center_30%]"
             style={heroDelay(0)}

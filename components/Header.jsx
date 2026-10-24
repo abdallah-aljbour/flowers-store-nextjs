@@ -67,7 +67,7 @@ export default function Header({ catalog, className = "" }) {
           </button>
 
           <Link href="/" aria-label="متجر المسكات — الرئيسية" className="flex">
-            <Logo size={54} priority />
+            <Logo size={54} loading="eager" />
           </Link>
 
           {wishlistButton}
@@ -76,7 +76,7 @@ export default function Header({ catalog, className = "" }) {
         {/* Desktop */}
         <div className="hidden lg:flex max-w-container mx-auto px-6 py-2.5 items-center justify-between gap-4">
           <Link href="/" aria-label="متجر المسكات — الرئيسية" className="flex">
-            <Logo size={68} priority />
+            <Logo size={68} loading="eager" />
           </Link>
 
           <nav aria-label="القائمة الرئيسية" className="flex gap-[34px] text-[15px] font-medium">

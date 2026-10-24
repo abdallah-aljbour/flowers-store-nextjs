@@ -105,8 +105,11 @@ a[href^="/product/"][data-nav-pending] img{animation:mbPending .7s ease-in-out i
 @media (hover:hover){ .mb-lift:hover img{transform:scale(1.04)} }
 
 /* ---------- 9b · photo placeholder (components/ui/ProductImage) ---------- */
-@keyframes mbShimmer{from{background-position:130% 0}to{background-position:-30% 0}}
-.mb-shimmer{background:#F1E8DA linear-gradient(100deg,rgba(248,241,231,0) 20%,#FBF6EE 50%,rgba(248,241,231,0) 80%) no-repeat;background-size:60% 100%;animation:mbShimmer 1.3s ease-in-out infinite}
+/* the highlight is a layer moved with transform (compositor only): animating background-position
+   repainted every frame on the main thread, also for the lazy photos below the fold */
+@keyframes mbShimmer{from{transform:translateX(130%)}to{transform:translateX(-130%)}}
+.mb-shimmer{overflow:hidden;background:#F1E8DA}
+.mb-shimmer::after{content:"";position:absolute;inset:0 20%;background:linear-gradient(100deg,rgba(248,241,231,0) 0%,#FBF6EE 50%,rgba(248,241,231,0) 100%);animation:mbShimmer 1.3s ease-in-out infinite}
 
 /* ---------- 10 · reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
@@ -122,5 +125,5 @@ a[href^="/product/"][data-nav-pending] img{animation:mbPending .7s ease-in-out i
   .mb-tap:active{transform:none}
   a[href^="/product/"][data-nav-pending] img{animation:none;opacity:.6}
   .mb-lift img{transition:none}
-  .mb-shimmer{animation:none}
+  .mb-shimmer::after{animation:none;display:none}
 }

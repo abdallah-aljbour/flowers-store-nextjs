@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { productsService } from "services/productsService";
+import { productsService } from "lib/productsClient";
 import ProductDetails from "components/ProductDetails";
 import { useRouter } from "next/navigation";
 import Header from "components/Header";

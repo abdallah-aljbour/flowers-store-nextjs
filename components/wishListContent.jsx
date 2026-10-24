@@ -6,7 +6,7 @@ import ProductImage from "components/ui/ProductImage";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
 import { useReveal } from "hooks/useReveal";
-import { productsService } from "services/productsService";
+import { productsService } from "lib/productsClient";
 import Header from "components/Header";
 import Footer from "components/Footer";
 import Button from "components/ui/Button";

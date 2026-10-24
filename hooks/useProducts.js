@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { productsService } from "../services/productsService";
+import { productsService } from "lib/productsClient"; // loads services/productsService on first use
 import { DEFAULT_MAX_PRICE, DEFAULT_VIEW, highestPriceOf, buildView, seedView } from "lib/catalogView";
 
 const CACHE_KEY = "products_cache";
