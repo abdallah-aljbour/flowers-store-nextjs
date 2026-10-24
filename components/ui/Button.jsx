@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { WA_CTA } from "lib/contact";
 
 // Button variants from DESIGN_SPEC §3.1. Renders a <Link> when `href` is set,
 // a plain <a> when `external`, otherwise a <button>.
@@ -44,10 +45,11 @@ export default function Button({
   ...props
 }) {
   const classes = buttonClasses({ variant, size, className });
+  const cta = variant === "whatsapp" ? WA_CTA : null;
 
   if (href && external) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={classes} {...props}>
+      <a href={href} target="_blank" rel="noopener noreferrer" className={classes} {...cta} {...props}>
         {children}
       </a>
     );
@@ -55,14 +57,14 @@ export default function Button({
 
   if (href) {
     return (
-      <Link href={href} className={classes} {...props}>
+      <Link href={href} className={classes} {...cta} {...props}>
         {children}
       </Link>
     );
   }
 
   return (
-    <button type="button" className={classes} {...props}>
+    <button type="button" className={classes} {...cta} {...props}>
       {children}
     </button>
   );

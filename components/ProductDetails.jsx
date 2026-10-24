@@ -19,6 +19,7 @@ import Header from "components/Header";
 import Footer from "components/Footer";
 import HeartButton from "components/ui/HeartButton";
 import WhatsAppIcon from "components/ui/WhatsAppIcon";
+import { WA_CTA } from "lib/contact";
 import { Eyebrow } from "components/ui/SectionHeading";
 import { splitName } from "lib/splitName";
 import { COLORS, flowerTypeDisplay } from "lib/catalogOptions";
@@ -529,6 +530,7 @@ function OrderButton({ onClick, className = "" }) {
     <button
       type="button"
       onClick={onClick}
+      {...WA_CTA}
       className={`mb-tap relative overflow-hidden rounded-full bg-whatsapp text-white font-semibold flex items-center justify-center gap-2 ${className}`}
     >
       <span aria-hidden="true" className="mb-shine" />

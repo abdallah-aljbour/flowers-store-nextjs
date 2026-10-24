@@ -12,7 +12,6 @@ import Footer from "components/Footer";
 import Button from "components/ui/Button";
 import HeartButton from "components/ui/HeartButton";
 import OrderLink from "components/ui/OrderLink";
-import WhatsAppFab, { FAB_CLEARANCE } from "components/ui/WhatsAppFab";
 import { BouquetIcon } from "components/ui/LineIcons";
 import { Eyebrow } from "components/ui/SectionHeading";
 import { splitName } from "lib/splitName";
@@ -129,8 +128,7 @@ export default function WishlistPageContent() {
         )}
       </main>
 
-      <Footer compact className={`mt-12 lg:mt-24 ${FAB_CLEARANCE}`} />
-      <WhatsAppFab />
+      <Footer compact className="mt-12 lg:mt-24" />
     </div>
   );
 }

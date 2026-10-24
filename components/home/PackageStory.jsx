@@ -21,12 +21,10 @@ const CHAPTERS = [
 
 // Package story (DESIGN_SPEC §4.1-6). Mobile: tall section with a sticky panel whose
 // chapter follows the scroll. Desktop: a static row of the 4 chapters in a champagne band.
-// `onVisibleChange(visible)` reports when the mobile story is on screen (Home hides its FAB,
-// which would cover the story's own WhatsApp button).
-export default function PackageStory({ onVisibleChange }) {
+export default function PackageStory() {
   return (
     <>
-      <MobileStory onVisibleChange={onVisibleChange} />
+      <MobileStory />
       <DesktopBand />
     </>
   );
@@ -51,20 +49,9 @@ function Actions({ className = "", askLabel = "اسألي" }) {
   );
 }
 
-function MobileStory({ onVisibleChange }) {
+function MobileStory() {
   const sectionRef = useRef(null);
   const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || !onVisibleChange || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([entry]) => onVisibleChange(entry.isIntersecting));
-    io.observe(section);
-    return () => {
-      io.disconnect();
-      onVisibleChange(false);
-    };
-  }, [onVisibleChange]);
 
   useEffect(() => {
     const section = sectionRef.current;

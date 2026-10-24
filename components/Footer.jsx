@@ -3,7 +3,7 @@ import { Instagram } from "lucide-react";
 import Logo from "components/ui/Logo";
 import WhatsAppIcon from "components/ui/WhatsAppIcon";
 import { NAV_LINKS } from "lib/navigation";
-import { WHATSAPP_URL, INSTAGRAM_URL } from "lib/contact";
+import { WHATSAPP_URL, INSTAGRAM_URL, WA_CTA } from "lib/contact";
 
 const year = new Date().getFullYear();
 const copyright = `© ${year} متجر المسكات · صُنع بحب في الأردن`;
@@ -78,6 +78,7 @@ function ContactIcons() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="واتساب"
+        {...WA_CTA}
         className="mb-tap w-12 h-12 rounded-full bg-whatsapp text-white flex items-center justify-center"
       >
         <WhatsAppIcon className="w-[22px] h-[22px]" />

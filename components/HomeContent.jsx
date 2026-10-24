@@ -19,7 +19,7 @@ import PhotoStrip from "components/home/PhotoStrip";
 import { splitName } from "lib/splitName";
 import { productAlt } from "lib/productAlt";
 import { SHOP_PATH } from "lib/navigation";
-import { WHATSAPP_URL } from "lib/contact";
+import { WHATSAPP_URL, WA_CTA } from "lib/contact";
 
 // Hero photo: the bride with white tulips (product "مكس الجمال", Cloudinary)
 const HERO_IMAGE =
@@ -34,7 +34,6 @@ const heroDelay = (seconds) => ({
 // first 4 in their stored order for the lookbook, the next 8 for the photo strip.
 export default function HomeContent() {
   const { products, loading, error } = useProducts();
-  const [storyVisible, setStoryVisible] = useState(false);
 
   const edit = error ? [] : products.slice(0, 4);
   const strip = error ? [] : products.slice(4, 12);
@@ -58,15 +57,14 @@ export default function HomeContent() {
             </Link>
           </p>
         )}
-        <PackageStory onVisibleChange={setStoryVisible} />
+        <PackageStory />
         <PhotoStrip products={strip} loading={loading && !error} />
         <HowToOrder />
       </main>
 
       <Footer className="max-lg:pb-[72px]" />
 
-      {/* Hidden while the package story is on screen: it has its own WhatsApp button there */}
-      <WhatsAppFab hidden={storyVisible} style={heroDelay(0.65)} />
+      <WhatsAppFab style={heroDelay(0.65)} />
     </div>
   );
 }
@@ -144,6 +142,7 @@ function Hero({ featured }) {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
+            {...WA_CTA}
             className="mb-tap min-h-[50px] lg:min-h-[54px] px-1.5 inline-flex items-center gap-2 text-sm lg:text-[15px] font-medium text-ink"
           >
             <WhatsAppIcon className="w-[18px] h-[18px] text-whatsapp" />
