@@ -11,6 +11,7 @@ import Header from "components/Header";
 import Footer from "components/Footer";
 import Button from "components/ui/Button";
 import WhatsAppIcon from "components/ui/WhatsAppIcon";
+import WhatsAppFab from "components/ui/WhatsAppFab";
 import HomeIntro from "components/home/HomeIntro";
 import Lookbook from "components/home/Lookbook";
 import PackageStory from "components/home/PackageStory";
@@ -64,22 +65,8 @@ export default function HomeContent() {
 
       <Footer className="max-lg:pb-[72px]" />
 
-      <a
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="تواصلي معنا عبر واتساب"
-        className={`lg:hidden fixed bottom-6 left-4 z-40 transition-[opacity,transform,visibility] duration-300 ${
-          storyVisible ? "opacity-0 scale-75 invisible" : ""
-        }`}
-      >
-        <span
-          style={heroDelay(0.65)}
-          className="mb-fab mb-tap w-14 h-14 rounded-full bg-whatsapp text-white shadow-whatsapp flex items-center justify-center"
-        >
-          <WhatsAppIcon className="w-[26px] h-[26px]" />
-        </span>
-      </a>
+      {/* Hidden while the package story is on screen: it has its own WhatsApp button there */}
+      <WhatsAppFab hidden={storyVisible} style={heroDelay(0.65)} />
     </div>
   );
 }

@@ -96,7 +96,8 @@ const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLa
 // initialProducts: same getAll() list fetched on the server (app/shop/page.js) → the
 // default view (page 1, no search/filters, default sort) renders with the HTML
 // waitForUrlSearch: the caller applies ?q= on mount (ShopContent), so the default list is not shown first
-export const useProducts = ({ initialProducts = null, waitForUrlSearch = false } = {}) => {
+// scrollOnPageChange: false when the caller scrolls itself (ShopContent: to the top of the results)
+export const useProducts = ({ initialProducts = null, waitForUrlSearch = false, scrollOnPageChange = true } = {}) => {
   const [seed] = useState(() => {
     if (!initialProducts) return null;
     const highest = highestPriceOf(initialProducts);
@@ -152,9 +153,11 @@ export const useProducts = ({ initialProducts = null, waitForUrlSearch = false }
   }, []);
 
   useEffect(() => {
+    if (!scrollOnPageChange) return;
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   useEffect(() => {

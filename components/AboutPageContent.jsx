@@ -7,6 +7,7 @@ import Footer from "components/Footer";
 import Logo from "components/ui/Logo";
 import Button from "components/ui/Button";
 import WhatsAppIcon from "components/ui/WhatsAppIcon";
+import WhatsAppFab, { FAB_CLEARANCE } from "components/ui/WhatsAppFab";
 import { Eyebrow } from "components/ui/SectionHeading";
 import { ArchIcon, BouquetIcon, DressIcon, MakeupIcon } from "components/ui/LineIcons";
 import { PARTNERS } from "lib/partners";
@@ -205,7 +206,8 @@ export default function AboutPageContenet() {
         </section>
       </main>
 
-      <Footer />
+      <Footer className={FAB_CLEARANCE} />
+      <WhatsAppFab />
     </div>
   );
 }

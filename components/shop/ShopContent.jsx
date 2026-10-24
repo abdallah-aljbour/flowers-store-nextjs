@@ -15,6 +15,7 @@ import Pagination from "components/Pagination";
 import FilterSidebar from "components/shop/FilterSidebar";
 import Chip from "components/ui/Chip";
 import Button from "components/ui/Button";
+import WhatsAppFab, { FAB_CLEARANCE } from "components/ui/WhatsAppFab";
 import { Eyebrow } from "components/ui/SectionHeading";
 import {
   FLOWER_TYPES,
@@ -60,7 +61,7 @@ export default function ShopContent({ initialProducts = null }) {
     setSortBy,
     maxPrice,
     resultCount,
-  } = useProducts({ initialProducts, waitForUrlSearch: true });
+  } = useProducts({ initialProducts, waitForUrlSearch: true, scrollOnPageChange: false });
 
   // Server data in the HTML: keep the pre-hydration skeleton (for ?q=) until React takes over
   const [serverHtml, setServerHtml] = useState(Boolean(initialProducts));
@@ -72,10 +73,16 @@ export default function ShopContent({ initialProducts = null }) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef(null);
+  // Query last sent to the hook (after the debounce) → drives the scroll to the results
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const applySearch = (q) => {
+    updateSearch(q);
+    setAppliedSearch(q);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      updateSearch(searchQuery);
+      applySearch(searchQuery);
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -88,13 +95,33 @@ export default function ShopContent({ initialProducts = null }) {
     const q = params.get("q");
     if (q) {
       setSearchQuery(q);
-      updateSearch(q);
+      applySearch(q);
     }
     if (q || params.get("focus") === "search") {
       searchRef.current?.focus({ preventScroll: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // After a chip, filter, sort, search or page change: bring the top of the results just
+  // below the sticky header (+ the mobile tools bar). Only when the reader is scrolled past it.
+  const resultsRef = useRef(null);
+  const toolsRef = useRef(null);
+  const firstView = useRef(true);
+  useEffect(() => {
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    const results = resultsRef.current;
+    if (!results) return;
+    const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
+    const toolsHeight = toolsRef.current?.offsetParent ? toolsRef.current.offsetHeight : 0; // mobile only
+    const top = results.getBoundingClientRect().top + window.scrollY - headerHeight - toolsHeight - 12;
+    if (window.scrollY <= top) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: Math.max(0, top), behavior: reduce ? "auto" : "smooth" });
+  }, [filters, sortBy, currentPage, appliedSearch]);
 
   useReveal([products]);
 
@@ -110,7 +137,7 @@ export default function ShopContent({ initialProducts = null }) {
   const clearAll = () => {
     clearFilters();
     setSearchQuery("");
-    updateSearch("");
+    applySearch("");
   };
 
   const catalog = {
@@ -175,7 +202,7 @@ export default function ShopContent({ initialProducts = null }) {
       </div>
 
       {/* Mobile sticky tools */}
-      <div className="lg:hidden sticky top-16 z-30 bg-pearl/[0.96] backdrop-blur-sm border-b border-line pt-3 pb-3.5 flex flex-col gap-3">
+      <div ref={toolsRef} className="lg:hidden sticky top-16 z-30 bg-pearl/[0.96] backdrop-blur-sm border-b border-line pt-3 pb-3.5 flex flex-col gap-3">
         <SearchBar ref={searchRef} value={searchQuery} onChange={setSearchQuery} className="mx-4" />
         <FilterBar
           filters={filters}
@@ -198,7 +225,7 @@ export default function ShopContent({ initialProducts = null }) {
           />
         </div>
 
-        <main className="flex-1 min-w-0 flex flex-col gap-5 lg:gap-[26px]">
+        <main ref={resultsRef} className="flex-1 min-w-0 flex flex-col gap-5 lg:gap-[26px]">
           {/* Desktop tools */}
           <div className="hidden lg:flex flex-wrap items-center gap-3">
             <SearchBar value={searchQuery} onChange={setSearchQuery} className="flex-1 min-w-[280px]" />
@@ -277,7 +304,8 @@ export default function ShopContent({ initialProducts = null }) {
         </main>
       </div>
 
-      <Footer compact />
+      <Footer compact className={FAB_CLEARANCE} />
+      <WhatsAppFab />
     </div>
   );
 }
