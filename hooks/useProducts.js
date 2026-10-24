@@ -1,45 +1,14 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { productsService } from "lib/productsClient"; // loads services/productsService on first use
 import { DEFAULT_MAX_PRICE, DEFAULT_VIEW, highestPriceOf, buildView, seedView } from "lib/catalogView";
-
-const CACHE_KEY = "products_cache";
-const CACHE_DURATION = 10 * 1000; // 30 ثانية
-// const CACHE_DURATION = 24 * 60 * 60 * 1000; // يوم كامل
-
-const getCachedProducts = () => {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      const { products, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < CACHE_DURATION) {
-        return products;
-      }
-    }
-  } catch (error) {
-    console.error("Cache error:", error);
-  }
-  return null;
-};
-
-const setCachedProducts = (products) => {
-  try {
-    localStorage.setItem(
-      CACHE_KEY,
-      JSON.stringify({
-        products,
-        timestamp: Date.now(),
-      })
-    );
-  } catch (error) {
-    console.error("Cache save error:", error);
-  }
-};
+import { getCachedProducts, setCachedProducts } from "lib/productsCache";
 
 // Layout effect in the browser (runs before paint), plain effect on the server
 const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 // initialProducts: the same getAll() list fetched on the server (app/shop/page.js, app/page.js),
-//   so the first view renders with the HTML
+//   so the first view renders with the HTML. It is then the product list for every view (search,
+//   filters, pages): no Firestore read in the browser, and it refreshes the localStorage copy
 // initialView: start from this view (client-side render, e.g. back to /shop?page=3)
 // readViewAfterMount: called once after the first (hydration) render, which must match the
 //   server's default view; a view it returns is applied before the first fetch (skeleton, then results)
@@ -56,6 +25,8 @@ export const useProducts = ({
   const skipLoadingOnce = useRef(Boolean(seed));
   // The mount fetch runs with the default view while a URL view is being applied: skip it
   const skipDefaultFetch = useRef(false);
+  // Server list: the product source for every view (no Firestore read)
+  const serverProducts = useRef(initialProducts);
 
   const [products, setProducts] = useState(seed ? seed.paginatedProducts : []);
   const [loading, setLoading] = useState(!seed);
@@ -95,13 +66,21 @@ export const useProducts = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // جلب إجمالي العدد (مرة واحدة)
+  // Server list → browser copy for the wishlist and related products
   useEffect(() => {
+    if (initialProducts) setCachedProducts(initialProducts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // جلب إجمالي العدد (مرة واحدة) — not needed with server data (the view sets the count)
+  useEffect(() => {
+    if (initialProducts) return;
     const fetchTotal = async () => {
       const count = await productsService.getTotalCount();
       setTotalCount(count);
     };
     fetchTotal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -122,7 +101,7 @@ export const useProducts = ({
         if (skipLoadingOnce.current) skipLoadingOnce.current = false;
         else setLoading(true);
 
-        const cachedProducts = getCachedProducts();
+        const cachedProducts = serverProducts.current || getCachedProducts();
         let allProducts;
 
         if (cachedProducts) {

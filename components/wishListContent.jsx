@@ -7,6 +7,7 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
 import { useReveal } from "hooks/useReveal";
 import { productsService } from "lib/productsClient";
+import { getCachedProducts, setCachedProducts } from "lib/productsCache";
 import Header from "components/Header";
 import Footer from "components/Footer";
 import Button from "components/ui/Button";
@@ -33,8 +34,12 @@ export default function WishlistPageContent() {
 
       try {
         setLoading(true);
-        // جلب المنتجات من Firebase
-        const allProducts = await productsService.getAll();
+        // The catalogue's browser copy when fresh (30 min), otherwise جلب المنتجات من Firebase
+        let allProducts = getCachedProducts();
+        if (!allProducts) {
+          allProducts = await productsService.getAll();
+          setCachedProducts(allProducts);
+        }
         const wishlistProducts = allProducts.filter((p) =>
           wishlist.includes(p.id)
         );

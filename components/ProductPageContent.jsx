@@ -18,9 +18,11 @@ export default function ProductPageContent({ params, initialProduct = null }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Server data (cached page, ISR): shown as is, no Firestore read in the browser
+    if (initialProduct && initialProduct.id === params.id) return;
     const fetchProduct = async () => {
       try {
-        if (!initialProduct) setLoading(true); // with server data: refresh silently
+        setLoading(true);
         const productData = await productsService.getById(params.id);
 
         if (!productData) {
@@ -37,7 +39,7 @@ export default function ProductPageContent({ params, initialProduct = null }) {
     };
 
     fetchProduct();
-    // initialProduct only seeds the first render; the refresh follows the id
+    // initialProduct only seeds the first render; a fetch follows the id when there is none
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
