@@ -1,4 +1,8 @@
+import { productsService } from "services/productsService";
 import ShopContent from "components/shop/ShopContent";
+
+// Rebuilt at most once a minute; the client still refreshes from Firebase on load
+export const revalidate = 60;
 
 export const metadata = {
   title: "المجموعة - مسكات عرائس فاخرة",
@@ -35,6 +39,13 @@ export const metadata = {
   },
 };
 
-export default function ShopPage() {
-  return <ShopContent />;
+export default async function ShopPage() {
+  let initialProducts = null;
+  try {
+    // Same getAll() the catalogue hook uses, as plain JSON, so the first cards are in the HTML
+    initialProducts = JSON.parse(JSON.stringify(await productsService.getAll()));
+  } catch (error) {
+    console.error("Error prefetching shop products:", error);
+  }
+  return <ShopContent initialProducts={initialProducts} />;
 }

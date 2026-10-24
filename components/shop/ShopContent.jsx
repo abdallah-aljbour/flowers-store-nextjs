@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useProducts } from "hooks/useProducts";
 import { useReveal } from "hooks/useReveal";
@@ -31,9 +31,18 @@ const GRID =
   "grid grid-cols-2 gap-x-3 gap-y-[26px] pb-11 max-lg:[&>*:nth-child(even)]:translate-y-11 " +
   "lg:grid-cols-3 lg:gap-x-[22px] lg:gap-y-[38px] lg:pb-12 lg:[&>*:nth-child(3n+2)]:translate-y-12";
 
+// Layout effect in the browser (runs before paint), plain effect on the server
+const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+// Server HTML is the same for /shop and /shop?q=…: before React loads, a search URL hides
+// the server grid and shows the skeleton (data-shop-q on the root, removed once React takes over)
+const MARK_SEARCH_URL =
+  'if(new URLSearchParams(location.search).get("q"))document.currentScript.parentElement.setAttribute("data-shop-q","")';
+const HIDE_ON_SEARCH_URL = "[[data-shop-q]_&]:hidden";
+
 const designsLabel = (n) => (n === 1 ? "تصميم واحد" : n === 2 ? "تصميمان" : n <= 10 ? `${n} تصاميم` : `${n} تصميمًا`);
 
-export default function ShopContent() {
+export default function ShopContent({ initialProducts = null }) {
   const {
     products,
     loading,
@@ -51,7 +60,15 @@ export default function ShopContent() {
     setSortBy,
     maxPrice,
     resultCount,
-  } = useProducts();
+  } = useProducts({ initialProducts, waitForUrlSearch: true });
+
+  // Server data in the HTML: keep the pre-hydration skeleton (for ?q=) until React takes over
+  const [serverHtml, setServerHtml] = useState(Boolean(initialProducts));
+  const rootRef = useRef(null);
+  useBrowserLayoutEffect(() => {
+    rootRef.current?.removeAttribute("data-shop-q");
+    setServerHtml(false);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef(null);
@@ -124,7 +141,7 @@ export default function ShopContent() {
   );
 
   const resultLine = !loading && (
-    <p role="status" className="text-[13px] lg:text-sm text-ink-muted">
+    <p role="status" className={`text-[13px] lg:text-sm text-ink-muted ${HIDE_ON_SEARCH_URL}`}>
       {designsLabel(resultCount)}
     </p>
   );
@@ -144,7 +161,8 @@ export default function ShopContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div ref={rootRef} className="min-h-screen flex flex-col" suppressHydrationWarning>
+      {serverHtml && <script dangerouslySetInnerHTML={{ __html: MARK_SEARCH_URL }} />}
       <Header catalog={catalog} />
 
       {/* Title */}
@@ -216,8 +234,11 @@ export default function ShopContent() {
             className="!mt-0"
           />
 
-          {loading && (
-            <div className={GRID} aria-busy="true">
+          {(loading || serverHtml) && (
+            <div
+              className={loading ? GRID : `${GRID} hidden [[data-shop-q]_&]:grid`}
+              aria-busy="true"
+            >
               {[...Array(6)].map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))}
@@ -225,7 +246,7 @@ export default function ShopContent() {
           )}
 
           {!loading && (
-            <>
+            <div className={`contents ${HIDE_ON_SEARCH_URL}`}>
               {products.length === 0 && isFiltered ? (
                 <EmptyState
                   title="لا توجد نتائج"
@@ -251,7 +272,7 @@ export default function ShopContent() {
                   onPrev={goToPrevPage}
                 />
               )}
-            </>
+            </div>
           )}
         </main>
       </div>

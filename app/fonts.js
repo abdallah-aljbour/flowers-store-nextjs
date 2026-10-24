@@ -1,18 +1,18 @@
 import { Amiri, IBM_Plex_Sans_Arabic, Cormorant_Garamond } from "next/font/google";
 import localFont from "next/font/local";
 
-// Preloading: only the Arabic files of the body font. The display and Latin faces load
-// when used (display: swap), so the fonts don't compete with CSS and the hero.
+// Preloading: only the Arabic files of the body font and of the bold display font (product
+// names / headings are often the LCP text). The Latin faces and the accent load when used
+// (display: swap), so the fonts don't compete with CSS and the hero.
 // Only the weights the design uses are loaded (font-medium falls back to Plex 400).
 
 // Arabic display: headings, product names (all bold)
 export const amiri = Amiri({
-  subsets: ["arabic", "latin"],
+  subsets: ["arabic"], // preloaded subset; Latin glyphs still load from the font on use
   weight: ["700"],
   style: ["normal"],
   variable: "--font-amiri",
   display: "swap",
-  preload: false,
 });
 
 // Hero accent word «المناسبات» in thin Amiri italic. Self-hosted subset (~8 KB)
