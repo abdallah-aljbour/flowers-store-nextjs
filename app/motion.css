@@ -92,6 +92,12 @@
 /* ---------- 9 · press + hover ---------- */
 .mb-tap{transition:transform .12s ease}
 .mb-tap:active{transform:scale(.97)}
+/* product links: pressed photo, then "opening" until the next page shows (components/NavFeedback) */
+@keyframes mbPending{from{opacity:.75}to{opacity:.45}}
+a[href^="/product/"] img{transition:opacity .15s ease}
+a[href^="/product/"]:active img{opacity:.8}
+a[data-nav-pending]{cursor:progress}
+a[href^="/product/"][data-nav-pending] img{animation:mbPending .7s ease-in-out infinite alternate} /* beats .mb-curtain.is-in img */
 .mb-lift img{transition:transform .6s var(--ease-soft)}
 @media (hover:hover){ .mb-lift:hover img{transform:scale(1.04)} }
 
@@ -107,5 +113,6 @@
   .mb-layer.is-on .mb-disc,.mb-layer.is-on .mb-halo,.mb-layer.is-on .mb-ch1,.mb-layer.is-on .mb-ch2,.mb-layer.is-on .mb-ch3{animation:none}
   .mb-petal,.mb-shine{display:none}
   .mb-tap:active{transform:none}
+  a[href^="/product/"][data-nav-pending] img{animation:none;opacity:.6}
   .mb-lift img{transition:none}
 }

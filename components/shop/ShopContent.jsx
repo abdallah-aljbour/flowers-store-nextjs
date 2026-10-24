@@ -180,7 +180,16 @@ export default function ShopContent({ initialProducts = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, products]);
 
-  useEffect(() => () => heightLock.current?.stop(), []);
+  // Leaving /shop (e.g. tapping a product) mid-scroll: stop the smooth scroll, so it can't keep
+  // moving the next page. Layout cleanup = before Next.js scrolls the new page to the top.
+  useBrowserLayoutEffect(
+    () => () => {
+      if (!heightLock.current) return;
+      heightLock.current.stop();
+      window.scrollTo({ top: window.scrollY, behavior: "auto" });
+    },
+    []
+  );
 
   useReveal([products]);
 
