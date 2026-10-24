@@ -1,6 +1,6 @@
 import "./globals.css";
 import { ToastProvider } from "contexts/ToastContext";
-import { amiri, plexArabic, cormorant } from "./fonts";
+import { amiri, amiriAccent, plexArabic, cormorant } from "./fonts";
 
 export const metadata = {
   metadataBase: new URL("https://maskatblooms.com"),
@@ -59,7 +59,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
       <body
-        className={`${amiri.variable} ${plexArabic.variable} ${cormorant.variable} font-sans bg-pearl text-ink antialiased`}
+        className={`${amiri.variable} ${amiriAccent.variable} ${plexArabic.variable} ${cormorant.variable} font-sans bg-pearl text-ink antialiased`}
       >
         <ToastProvider>{children}</ToastProvider>
       </body>

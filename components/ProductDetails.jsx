@@ -404,9 +404,10 @@ function DesktopGallery({ images, index, onIndexChange, imageAlt }) {
   );
 }
 
-// next/image on a champagne placeholder, fading in once loaded (no spinner)
+// next/image on a champagne placeholder, fading in once loaded (no spinner).
+// The priority (first) photo shows at once: a fade from opacity 0 delays LCP.
 function FadeImage({ src, alt, sizes, priority = false, loading }) {
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(priority);
   return (
     <Image
       src={src}

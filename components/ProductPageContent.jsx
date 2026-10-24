@@ -10,16 +10,16 @@ import Button from "components/ui/Button";
 import { cameFromInsideSite } from "lib/navHistory";
 import { SHOP_PATH } from "lib/navigation";
 
-export default function ProductPageContent({ params }) {
+export default function ProductPageContent({ params, initialProduct = null }) {
   const router = useRouter();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(initialProduct);
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        setLoading(true);
+        if (!initialProduct) setLoading(true); // with server data: refresh silently
         const productData = await productsService.getById(params.id);
 
         if (!productData) {
@@ -36,6 +36,8 @@ export default function ProductPageContent({ params }) {
     };
 
     fetchProduct();
+    // initialProduct only seeds the first render; the refresh follows the id
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   // Back: previous page when it is ours, otherwise the collection

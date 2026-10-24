@@ -110,6 +110,10 @@ export default async function ProductPage({ params }) {
       color: product.colors,
     };
 
+    // Same product the server already fetched for metadata/JSON-LD, as plain JSON
+    // (Firestore values → plain objects) so the client can render it immediately
+    const initialProduct = JSON.parse(JSON.stringify(product));
+
     return (
       <>
         {/* Structured Data Script */}
@@ -119,7 +123,7 @@ export default async function ProductPage({ params }) {
         />
 
         {/* Page Content */}
-        <ProductPageContent params={params} />
+        <ProductPageContent params={params} initialProduct={initialProduct} />
       </>
     );
   } catch (error) {

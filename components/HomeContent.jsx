@@ -132,7 +132,7 @@ function Hero({ featured }) {
             <span key={text}>
               {br && <br />}
               <span
-                className={`mb-word ${accent ? "text-rose italic font-normal" : ""}`}
+                className={`mb-word ${accent ? "font-accent text-rose italic font-normal" : ""}`}
                 style={heroDelay(delay)}
               >
                 {text}

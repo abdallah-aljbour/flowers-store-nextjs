@@ -41,6 +41,7 @@ module.exports = {
       },
       fontFamily: {
         display: ["var(--font-amiri)", "serif"],
+        accent: ["var(--font-amiri-accent)", "var(--font-amiri)", "serif"], // hero accent word only
         sans: ["var(--font-plex-arabic)", "system-ui", "sans-serif"],
         latin: ["var(--font-cormorant)", "serif"],
       },

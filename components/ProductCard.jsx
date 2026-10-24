@@ -10,7 +10,8 @@ import { flowerTypeDisplay } from "lib/catalogOptions";
 // Catalog card (DESIGN_SPEC §3.5): 3:4 photo, flower-type pill, heart, bilingual name, price.
 // No card background or shadow. Navigation is a plain <Link>; app/template.js gives feedback.
 export const ProductCard = ({ product, sizes, priority = false, className = "" }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
+  // Priority (above-the-fold) photos show at once: a fade from opacity 0 delays LCP
+  const [imageLoaded, setImageLoaded] = useState(priority);
   const mainImage = product.images?.[0] || "/placeholder.jpg";
   const { ar, en } = splitName(product.name);
 

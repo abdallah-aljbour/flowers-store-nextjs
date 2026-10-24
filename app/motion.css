@@ -11,6 +11,10 @@
 @keyframes mbPageIn{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
 /* fill-mode backwards (not both): a filled transform would make .mb-page the containing block for position:fixed children */
 .mb-page{animation:mbPageIn .34s var(--ease-soft) backwards}
+/* Home with the logo intro: fade only. While the slide runs, its transform makes .mb-page the containing block, so the fixed intro would cover the whole page and its logo jump into view when the slide ends (layout shift) */
+.mb-page:has(#mb-intro){animation-name:mbFadeIn}
+/* First page load (server HTML, set in app/template.js): fade only, so the slide never shifts the first paint */
+.mb-page-first{animation-name:mbFadeIn}
 
 /* ---------- 2 · logo intro (first visit per session) ---------- */
 @keyframes mbWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}

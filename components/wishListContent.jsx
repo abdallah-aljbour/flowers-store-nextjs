@@ -92,22 +92,22 @@ export default function WishlistPageContent() {
           <EmptyState />
         ) : (
           <>
-            {/* Mobile: rows */}
-            <ul className="lg:hidden px-4 pt-3.5 flex flex-col gap-3">
+            {/* Phone: rows */}
+            <ul className="md:hidden px-4 pt-3.5 flex flex-col gap-3">
               {saved.map((product) => (
                 <WishlistRow key={product.id} product={product} />
               ))}
             </ul>
             <Link
               href={SHOP_PATH}
-              className="mb-tap lg:hidden mx-4 mt-[22px] mb-10 h-14 rounded-full border border-dashed border-line-gold flex items-center justify-center gap-2 text-sm font-medium text-ink"
+              className="mb-tap md:hidden mx-4 mt-[22px] mb-10 h-14 rounded-full border border-dashed border-line-gold flex items-center justify-center gap-2 text-sm font-medium text-ink"
             >
               <Plus className="w-[18px] h-[18px] text-rose" strokeWidth={1.8} aria-hidden="true" />
               أضيفي المزيد من المجموعة
             </Link>
 
-            {/* Desktop: card grid + "add more" tile */}
-            <ul className="max-lg:hidden px-6 pt-9 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-x-[22px] gap-y-9">
+            {/* Tablet + desktop: card grid + "add more" tile */}
+            <ul className="max-md:hidden px-4 lg:px-6 pt-9 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-x-[22px] gap-y-9">
               {saved.map((product) => (
                 <WishlistCard key={product.id} product={product} />
               ))}
@@ -280,7 +280,7 @@ function EmptyState() {
 function WishlistSkeleton() {
   return (
     <div aria-hidden="true" className="motion-safe:animate-pulse">
-      <div className="lg:hidden px-4 pt-3.5 flex flex-col gap-3">
+      <div className="md:hidden px-4 pt-3.5 flex flex-col gap-3">
         {[0, 1, 2].map((i) => (
           <div key={i} className="bg-white border border-line rounded-[24px] p-2.5 flex gap-3.5">
             <div className="w-[108px] h-[140px] rounded-[18px] bg-champagne-photo" />
@@ -291,7 +291,7 @@ function WishlistSkeleton() {
           </div>
         ))}
       </div>
-      <div className="max-lg:hidden px-6 pt-9 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-x-[22px] gap-y-9">
+      <div className="max-md:hidden px-4 lg:px-6 pt-9 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-x-[22px] gap-y-9">
         {[0, 1, 2].map((i) => (
           <div key={i} className="flex flex-col gap-3">
             <div className="aspect-[3/4] rounded-[26px] bg-champagne-photo" />
