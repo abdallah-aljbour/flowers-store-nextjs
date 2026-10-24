@@ -1,22 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import ProductImage from "components/ui/ProductImage";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
-import { productsService } from "services/productsService";
-import ProductCard from "components/ProductCard";
-import ProductDetails from "components/ProductDetails";
-// import Header from "components/Header";
+import { useReveal } from "hooks/useReveal";
+import { productsService } from "lib/productsClient";
+import Header from "components/Header";
 import Footer from "components/Footer";
-import { Loader, Heart, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
-import ProductCardSkeleton from "components/ProductCardSkeleton";
+import Button from "components/ui/Button";
+import HeartButton from "components/ui/HeartButton";
+import OrderLink from "components/ui/OrderLink";
+import { BouquetIcon } from "components/ui/LineIcons";
+import { Eyebrow } from "components/ui/SectionHeading";
+import { splitName } from "lib/splitName";
+import { flowerTypeDisplay } from "lib/catalogOptions";
+import { productAlt } from "lib/productAlt";
+import { SHOP_PATH } from "lib/navigation";
 
 export default function WishlistPageContent() {
-  const router = useRouter();
   const { wishlist } = useWishlist();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const fetchWishlistProducts = async () => {
@@ -43,89 +49,255 @@ export default function WishlistPageContent() {
     fetchWishlistProducts();
   }, [wishlist]);
 
-  useEffect(() => {
-    if (selectedProduct) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+  // Display only: drop a removed item right away instead of waiting for the refetch
+  const saved = products.filter((p) => wishlist.includes(p.id));
+  const showSkeleton = loading && saved.length === 0;
+  const isEmpty = !loading && saved.length === 0;
 
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [selectedProduct]);
+  useReveal([saved.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 pb-6">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push("/")}
-              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            >
-              <ArrowRight className="w-5 h-5 text-gray-700" />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900"> المفضلة 💗</h1>
-              <p className="text-xs text-gray-600 text-center">
-                {products.length} منتج
-              </p>
-            </div>
-            <div className="w-10" />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col">
+      <Header />
 
-      <main className="px-4 py-4">
-        {loading ? (
-          // Skeleton Loading
-          <div className="grid grid-cols-2 gap-3">
-            {[...Array(6)].map((_, i) => (
-              <ProductCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : products.length === 0 ? (
-          // Empty State
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-4">
-              <Heart className="w-10 h-10 text-red-400" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              لا توجد منتجات مفضلة
-            </h3>
-            <p className="text-sm text-gray-600 text-center mb-4">
-              اضغط على ❤️ لإضافة منتجات للمفضلة
+      <main className="flex-1 w-full max-w-container mx-auto">
+        {/* Heading */}
+        <div className="px-4 pt-6 pb-2 lg:px-6 lg:pt-12 flex flex-wrap items-end justify-between gap-3 lg:gap-4">
+          <div className="flex flex-col gap-0.5 lg:gap-1">
+            <Eyebrow className="!text-xl lg:!text-2xl">Saved for you</Eyebrow>
+            <h1 className="font-display font-bold text-ink text-4xl leading-[1.2] lg:text-[clamp(2.5rem,4.4vw,3.75rem)] lg:leading-[1.15]">
+              المفضلة
+            </h1>
+            <p role="status" className="mt-0.5 lg:mt-1 text-sm lg:text-[17px] text-ink-muted">
+              {saved.length > 0 ? savedLabel(saved.length) : ""}
             </p>
-            <button
-              onClick={() => router.push("/")}
-              className="px-6 py-2 bg-pandora-pink text-white rounded-lg font-medium"
-            >
-              تصفح المنتجات
-            </button>
           </div>
+
+          {!isEmpty && (
+            <>
+              <Button variant="text" href={SHOP_PATH} className="lg:hidden text-sm font-semibold">
+                تابعي التسوّق
+              </Button>
+              <Button href={SHOP_PATH} className="max-lg:hidden min-h-[50px] px-6">
+                تابعي التسوّق
+                <ArrowLeft className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        {showSkeleton ? (
+          <WishlistSkeleton />
+        ) : isEmpty ? (
+          <EmptyState />
         ) : (
-          // Products Grid
-          <div className="grid grid-cols-2 gap-3">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onClick={() => setSelectedProduct(product)}
-              />
-            ))}
-          </div>
+          <>
+            {/* Phone: rows */}
+            <ul className="md:hidden px-4 pt-3.5 flex flex-col gap-3">
+              {saved.map((product) => (
+                <WishlistRow key={product.id} product={product} />
+              ))}
+            </ul>
+            <Link
+              href={SHOP_PATH}
+              className="mb-tap md:hidden mx-4 mt-[22px] mb-10 h-14 rounded-full border border-dashed border-line-gold flex items-center justify-center gap-2 text-sm font-medium text-ink"
+            >
+              <Plus className="w-[18px] h-[18px] text-rose" strokeWidth={1.8} aria-hidden="true" />
+              أضيفي المزيد من المجموعة
+            </Link>
+
+            {/* Tablet + desktop: card grid + "add more" tile */}
+            <ul className="max-md:hidden px-4 lg:px-6 pt-9 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-x-[22px] gap-y-9">
+              {saved.map((product) => (
+                <WishlistCard key={product.id} product={product} />
+              ))}
+              <li>
+                <Link
+                  href={SHOP_PATH}
+                  className="mb-tap h-full min-h-[360px] rounded-[26px] border border-dashed border-line-gold flex flex-col items-center justify-center gap-3.5 text-ink transition-colors hover:bg-champagne"
+                >
+                  <span className="w-16 h-16 rounded-full border-[1.5px] border-rose flex items-center justify-center">
+                    <Plus className="w-[26px] h-[26px] text-rose" strokeWidth={1.8} aria-hidden="true" />
+                  </span>
+                  <span className="font-display font-bold text-[22px]">أضيفي المزيد</span>
+                  <span className="text-sm text-ink-muted">تصفّحي المجموعة الكاملة</span>
+                </Link>
+              </li>
+            </ul>
+          </>
         )}
       </main>
 
-      {selectedProduct && (
-        <ProductDetails
-          product={selectedProduct}
-          onBack={() => setSelectedProduct(null)}
+      <Footer compact className="mt-12 lg:mt-24" />
+    </div>
+  );
+}
+
+// "N تصاميم محفوظة" with Arabic number agreement
+function savedLabel(n) {
+  if (n === 1) return "تصميم واحد محفوظ";
+  if (n === 2) return "تصميمان محفوظان";
+  if (n >= 3 && n <= 10) return `${n} تصاميم محفوظة`;
+  return `${n} تصميماً محفوظاً`;
+}
+
+function tagLine(product) {
+  return [product.flowerType && flowerTypeDisplay(product.flowerType), product.category]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+// Mobile row: image 108×140 · names · tag · price · heart · اطلبي
+function WishlistRow({ product }) {
+  const { ar, en } = splitName(product.name);
+  const name = ar || en;
+  const tag = tagLine(product);
+
+  return (
+    <li className="mb-rv bg-white border border-line rounded-[24px] p-2.5 flex gap-3.5">
+      <Link
+        href={`/product/${product.id}`}
+        className="mb-tap relative shrink-0 w-[108px] h-[140px] rounded-[18px] overflow-hidden bg-champagne-photo"
+      >
+        <ProductImage
+          src={product.images?.[0] || "/placeholder.jpg"}
+          alt={productAlt(product)}
+          sizes="108px"
+          className="object-cover"
+          quality={80}
         />
-      )}
-      <Footer />
+      </Link>
+
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5 py-1">
+        <div className="flex justify-between items-start gap-2">
+          <div className="min-w-0 flex flex-col gap-0.5">
+            <h2 className="font-display font-bold text-[19px] leading-[1.3] text-ink">
+              <Link href={`/product/${product.id}`}>{name}</Link>
+            </h2>
+            {ar && en && (
+              <span dir="ltr" className="text-right font-latin italic text-sm text-ink-muted truncate">
+                {en}
+              </span>
+            )}
+          </div>
+          <HeartButton
+            productId={product.id}
+            productName={name}
+            variant="rose"
+            iconClassName="w-[18px] h-[18px]"
+            className="-mt-1.5 -ml-1.5"
+          />
+        </div>
+
+        {tag && <span className="mt-0.5 text-xs text-ink-muted">{tag}</span>}
+
+        <div className="mt-auto pt-2 flex items-center justify-between gap-2">
+          <span className="font-display font-bold text-xl text-rose">
+            {product.salePrice} <span className="font-sans font-medium text-xs">د.أ</span>
+          </span>
+          <OrderLink product={product} name={name} className="min-h-tap px-3.5 text-[13px]">
+            اطلبي
+          </OrderLink>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+// Desktop card: 3:4 photo with heart · names + price · full-width WhatsApp
+function WishlistCard({ product }) {
+  const { ar, en } = splitName(product.name);
+  const name = ar || en;
+
+  return (
+    <li className="mb-lift flex flex-col gap-3">
+      <div className="relative">
+        <Link
+          href={`/product/${product.id}`}
+          className="mb-curtain relative block aspect-[3/4] rounded-[26px] overflow-hidden bg-champagne-photo"
+        >
+          <ProductImage
+            src={product.images?.[0] || "/placeholder.jpg"}
+            alt={productAlt(product)}
+            sizes="(max-width: 1240px) 33vw, 300px"
+            className="object-cover"
+            quality={85}
+          />
+        </Link>
+        <HeartButton
+          productId={product.id}
+          productName={name}
+          variant="overlay"
+          className="absolute top-3 right-3"
+        />
+      </div>
+
+      <div className="flex justify-between items-start gap-3 px-1">
+        <div className="min-w-0 flex flex-col gap-0.5">
+          <h2 className="font-display font-bold text-[22px] leading-[1.3] text-ink">
+            <Link href={`/product/${product.id}`} className="hover:text-rose transition-colors">
+              {name}
+            </Link>
+          </h2>
+          {ar && en && (
+            <span dir="ltr" className="text-right font-latin italic text-base text-ink-muted truncate">
+              {en}
+            </span>
+          )}
+        </div>
+        <span className="shrink-0 text-base font-semibold text-rose">{product.salePrice} د.أ</span>
+      </div>
+
+      <OrderLink product={product} name={name} className="h-[50px] text-[15px] gap-2">
+        اطلبي عبر واتساب
+      </OrderLink>
+    </li>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center px-9 pt-10 pb-20 gap-3.5">
+      <div className="mb-2.5 w-[190px] h-[190px] rounded-full border border-line-gold flex items-center justify-center">
+        <div className="w-[170px] h-[170px] rounded-full bg-champagne flex items-center justify-center">
+          <BouquetIcon size={92} className="text-rose" />
+        </div>
+      </div>
+      <h2 className="font-display font-bold text-[30px] leading-[1.3] text-ink">قائمتكِ فارغة الآن</h2>
+      <p className="max-w-[340px] text-[15px] leading-[1.8] text-ink-muted">
+        اضغطي على القلب فوق أي مسكة لحفظها هنا، وارجعي لها وقتما تشائين.
+      </p>
+      <Button href={SHOP_PATH} className="mt-3 min-h-[52px] px-7">
+        تصفّحي المجموعة
+        <ArrowLeft className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
+      </Button>
+    </div>
+  );
+}
+
+function WishlistSkeleton() {
+  return (
+    <div aria-hidden="true" className="motion-safe:animate-pulse">
+      <div className="md:hidden px-4 pt-3.5 flex flex-col gap-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="bg-white border border-line rounded-[24px] p-2.5 flex gap-3.5">
+            <div className="w-[108px] h-[140px] rounded-[18px] bg-champagne-photo" />
+            <div className="flex-1 py-2 flex flex-col gap-2">
+              <div className="h-5 w-3/4 rounded-full bg-champagne" />
+              <div className="h-3.5 w-1/2 rounded-full bg-champagne" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="max-md:hidden px-4 lg:px-6 pt-9 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-x-[22px] gap-y-9">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col gap-3">
+            <div className="aspect-[3/4] rounded-[26px] bg-champagne-photo" />
+            <div className="h-5 w-2/3 rounded-full bg-champagne" />
+            <div className="h-[50px] rounded-full bg-champagne" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

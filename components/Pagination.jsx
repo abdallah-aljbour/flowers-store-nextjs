@@ -1,52 +1,51 @@
 "use client";
 
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 
-export const Pagination = ({
-  currentPage,
-  totalPages,
-  onNext,
-  onPrev,
-  hasMore,
-}) => {
+const pageButton =
+  "mb-tap inline-flex items-center gap-1.5 min-h-[46px] px-4 lg:px-5 rounded-full bg-white border-[1.5px] text-sm font-semibold transition-colors";
+const enabled =
+  "border-rose text-rose [@media(hover:hover)]:hover:bg-rose [@media(hover:hover)]:hover:text-white";
+const disabled = "border-rose-disabled text-[#8C7D70] cursor-not-allowed";
+
+// Previous / next pagination (DESIGN_SPEC §4.2). Same props as before.
+export const Pagination = ({ currentPage, totalPages, onNext, onPrev, hasMore }) => {
+  const prevDisabled = currentPage === 1;
+
   return (
-    <div className="flex items-center justify-center gap-3 py-6">
-      {/* Previous Button */}
+    <nav
+      aria-label="الصفحات"
+      className="flex items-center justify-between lg:justify-center gap-2.5 lg:gap-[18px] pt-2 lg:pt-6"
+    >
+      {/* RTL: "back" points right */}
       <button
+        type="button"
         onClick={onPrev}
-        disabled={currentPage === 1}
-        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-          currentPage === 1
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-white text-gray-700 shadow-md active:scale-95"
-        }`}
+        disabled={prevDisabled}
+        aria-label="الصفحة السابقة"
+        className={`${pageButton} ${prevDisabled ? disabled : enabled}`}
       >
-        <ChevronRight className="w-5 h-5" />
+        <ArrowRight className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+        السابق
       </button>
 
-      {/* Page Info */}
-      <div className="bg-white px-4 py-2 rounded-full shadow-md">
-        <span className="text-sm font-bold text-gray-900">
-          صفحة {currentPage}
-          {totalPages > 0 && (
-            <span className="text-gray-500"> من {totalPages}</span>
-          )}
-        </span>
-      </div>
+      <span className="text-sm text-ink-muted" aria-live="polite">
+        صفحة <strong className="font-semibold text-ink">{currentPage}</strong>
+        {totalPages > 0 && <> من {totalPages}</>}
+      </span>
 
-      {/* Next Button */}
+      {/* RTL: "forward" points left */}
       <button
+        type="button"
         onClick={onNext}
         disabled={!hasMore}
-        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-          !hasMore
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-pandora-pink text-white shadow-md active:scale-95"
-        }`}
+        aria-label="الصفحة التالية"
+        className={`${pageButton} ${!hasMore ? disabled : enabled}`}
       >
-        <ChevronLeft className="w-5 h-5" />
+        التالي
+        <ArrowLeft className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
       </button>
-    </div>
+    </nav>
   );
 };
 

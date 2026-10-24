@@ -1,9 +1,22 @@
+import { cache } from "react";
 import { productsService } from "services/productsService";
 import ProductPageContent from "components/ProductPageContent";
 
+// Cached page (ISR, like /shop): served at once and refreshed in the background at most once
+// a minute; the client still refreshes the product on load. Prefetched links get the whole page.
+export const revalidate = 60;
+
+// Nothing built ahead: each product page is cached the first time it is opened
+export async function generateStaticParams() {
+  return [];
+}
+
+// One Firestore read per render for metadata + page (same getById, same data)
+const getProduct = cache((id) => productsService.getById(id));
+
 export async function generateMetadata({ params }) {
   try {
-    const product = await productsService.getById(params.id);
+    const product = await getProduct(params.id);
 
     if (!product) {
       return {
@@ -69,7 +82,7 @@ export async function generateMetadata({ params }) {
 export default async function ProductPage({ params }) {
   try {
     // جلب المنتج للـ Structured Data
-    const product = await productsService.getById(params.id);
+    const product = await getProduct(params.id);
 
     if (!product) {
       return <ProductPageContent params={params} />;
@@ -110,6 +123,10 @@ export default async function ProductPage({ params }) {
       color: product.colors,
     };
 
+    // Same product the server already fetched for metadata/JSON-LD, as plain JSON
+    // (Firestore values → plain objects) so the client can render it immediately
+    const initialProduct = JSON.parse(JSON.stringify(product));
+
     return (
       <>
         {/* Structured Data Script */}
@@ -119,7 +136,7 @@ export default async function ProductPage({ params }) {
         />
 
         {/* Page Content */}
-        <ProductPageContent params={params} />
+        <ProductPageContent params={params} initialProduct={initialProduct} />
       </>
     );
   } catch (error) {

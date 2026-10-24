@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { productsService } from "../services/productsService";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { productsService } from "lib/productsClient"; // loads services/productsService on first use
+import { DEFAULT_MAX_PRICE, DEFAULT_VIEW, highestPriceOf, buildView, seedView } from "lib/catalogView";
 
 const CACHE_KEY = "products_cache";
 const CACHE_DURATION = 10 * 1000; // 30 ثانية
@@ -34,21 +35,65 @@ const setCachedProducts = (products) => {
   }
 };
 
-export const useProducts = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Layout effect in the browser (runs before paint), plain effect on the server
+const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+// initialProducts: the same getAll() list fetched on the server (app/shop/page.js, app/page.js),
+//   so the first view renders with the HTML
+// initialView: start from this view (client-side render, e.g. back to /shop?page=3)
+// readViewAfterMount: called once after the first (hydration) render, which must match the
+//   server's default view; a view it returns is applied before the first fetch (skeleton, then results)
+// scrollOnPageChange: false when the caller scrolls itself (ShopContent: to the top of the results)
+export const useProducts = ({
+  initialProducts = null,
+  initialView = null,
+  readViewAfterMount = null,
+  scrollOnPageChange = true,
+} = {}) => {
+  const [start] = useState(() => ({ ...DEFAULT_VIEW, ...initialView }));
+  const [seed] = useState(() => (initialProducts ? seedView(initialProducts, start) : null));
+  // First client refresh after server data: no skeleton
+  const skipLoadingOnce = useRef(Boolean(seed));
+  // The mount fetch runs with the default view while a URL view is being applied: skip it
+  const skipDefaultFetch = useRef(false);
+
+  const [products, setProducts] = useState(seed ? seed.paginatedProducts : []);
+  const [loading, setLoading] = useState(!seed);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(start.page);
   const [lastDocs, setLastDocs] = useState({});
-  const [hasMore, setHasMore] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("default");
+  const [hasMore, setHasMore] = useState(seed ? seed.hasMore : true);
+  const [totalCount, setTotalCount] = useState(seed ? seed.total : 0);
+  const [resultCount, setResultCount] = useState(seed ? seed.total : 0); // عدد النتائج بعد الفلترة (للعرض فقط)
+  const [searchQuery, setSearchQuery] = useState(start.searchQuery);
+  const [sortBy, setSortBy] = useState(start.sortBy);
+  const [maxPrice, setMaxPrice] = useState(seed ? seed.highest : DEFAULT_MAX_PRICE);
   const [filters, setFilters] = useState({
-    flowerTypes: [],
-    colors: [],
-    priceRange: [0, 40],
+    flowerTypes: start.flowerTypes,
+    colors: start.colors,
+    priceRange: [start.priceMin, seed ? seed.max : start.priceMax ?? DEFAULT_MAX_PRICE],
   });
+
+  // Full page load of a view URL (/shop?q=…&page=…): the server HTML is the default view, so the
+  // URL view is applied right after hydration, with the skeleton until its results are ready
+  useBrowserLayoutEffect(() => {
+    if (initialView || !readViewAfterMount) return;
+    const view = readViewAfterMount();
+    if (!view) return;
+    const v = { ...DEFAULT_VIEW, ...view };
+    skipDefaultFetch.current = true;
+    skipLoadingOnce.current = false;
+    setLoading(true);
+    setCurrentPage(v.page);
+    setSearchQuery(v.searchQuery);
+    setSortBy(v.sortBy);
+    setFilters((prev) => ({
+      flowerTypes: v.flowerTypes,
+      colors: v.colors,
+      priceRange: [v.priceMin, v.priceMax ?? prev.priceRange[1]],
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // جلب إجمالي العدد (مرة واحدة)
   useEffect(() => {
@@ -60,15 +105,22 @@ export const useProducts = () => {
   }, []);
 
   useEffect(() => {
+    if (!scrollOnPageChange) return;
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
+      if (skipDefaultFetch.current) {
+        skipDefaultFetch.current = false; // default view before the URL view: skip
+        return;
+      }
       try {
-        setLoading(true);
+        if (skipLoadingOnce.current) skipLoadingOnce.current = false;
+        else setLoading(true);
 
         const cachedProducts = getCachedProducts();
         let allProducts;
@@ -80,49 +132,31 @@ export const useProducts = () => {
           setCachedProducts(allProducts); // احفظ في الـ cache
         }
 
-        // Filter
-        const filteredProducts = allProducts.filter((p) => {
-          const matchesSearch = searchQuery
-            ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              p.description.toLowerCase().includes(searchQuery.toLowerCase())
-            : true;
-
-          const matchesFlowerType =
-            filters.flowerTypes.length > 0
-              ? filters.flowerTypes.includes(p.flowerType)
-              : true;
-
-          const matchesColor =
-            filters.colors.length > 0
-              ? p.colors.some((color) => filters.colors.includes(color))
-              : true;
-
-          const matchesPrice =
-            p.salePrice >= filters.priceRange[0] &&
-            p.salePrice <= filters.priceRange[1];
-
-          const isNotBag = p.type !== "bag";
-
-          return (
-            isNotBag && matchesSearch && matchesFlowerType && matchesColor && matchesPrice
+        // أعلى سعر بين المنتجات = الحد الأقصى الافتراضي، حتى ما ينخفى أي منتج
+        const highestPrice = highestPriceOf(allProducts);
+        // لو الحد الأقصى ما تغيّر من المستخدم، استخدم أعلى سعر
+        const priceMax = filters.priceRange[1] === maxPrice ? highestPrice : filters.priceRange[1];
+        if (highestPrice !== maxPrice) {
+          setMaxPrice(highestPrice);
+          setFilters((prev) =>
+            prev.priceRange[1] === maxPrice
+              ? { ...prev, priceRange: [prev.priceRange[0], highestPrice] }
+              : prev
           );
-        });
+        }
 
-        // Sort
-        const sortedProducts = [...filteredProducts].sort((a, b) => {
-          if (sortBy === "price-low") return a.salePrice - b.salePrice;
-          if (sortBy === "price-high") return b.salePrice - a.salePrice;
-          return 0;
+        const { paginatedProducts, total, hasMore: more } = buildView(allProducts, {
+          searchQuery,
+          filters,
+          priceMax,
+          sortBy,
+          currentPage,
         });
-
-        // Pagination (20 لكل صفحة)
-        const startIndex = (currentPage - 1) * 20;
-        const endIndex = startIndex + 20;
-        const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
 
         setProducts(paginatedProducts);
-        setTotalCount(sortedProducts.length);
-        setHasMore(endIndex < sortedProducts.length);
+        setTotalCount(total);
+        setResultCount(total);
+        setHasMore(more);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -131,7 +165,7 @@ export const useProducts = () => {
     };
 
     fetchAllProducts();
-  }, [currentPage, searchQuery, filters, sortBy]);
+  }, [currentPage, searchQuery, filters, sortBy, maxPrice]);
 
   const goToNextPage = () => {
     if (hasMore) {
@@ -154,7 +188,7 @@ export const useProducts = () => {
     setFilters({
       flowerTypes: [],
       colors: [],
-      priceRange: [0, 40],
+      priceRange: [0, maxPrice],
     });
     setCurrentPage(1);
   };
@@ -176,5 +210,7 @@ export const useProducts = () => {
     clearFilters,
     sortBy,
     setSortBy,
+    maxPrice,
+    resultCount,
   };
 };

@@ -1,110 +1,62 @@
 "use client";
 
-import { Heart } from "lucide-react";
-import { useState } from "react";
-import Image from "next/image";
-import { useWishlist } from "hooks/useWishlist";
-import { useRouter } from "next/navigation";
-import { useToast } from "contexts/ToastContext";
-import LoadingScreen from "./LoadingScreen";
+import Link from "next/link";
+import ProductImage from "components/ui/ProductImage";
+import HeartButton from "components/ui/HeartButton";
+import { splitName } from "lib/splitName";
+import { flowerTypeDisplay } from "lib/catalogOptions";
 
-export const ProductCard = ({ product, onClick }) => {
-  const router = useRouter();
-  const { toggleWishlist, isInWishlist } = useWishlist();
-  const { success } = useToast();
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false); // ← جديد
-
+// Catalog card (DESIGN_SPEC §3.5): 3:4 photo, flower-type pill, heart, bilingual name, price.
+// No card background or shadow. Navigation is a plain <Link>; app/template.js gives feedback.
+export const ProductCard = ({ product, sizes, priority = false, className = "" }) => {
   const mainImage = product.images?.[0] || "/placeholder.jpg";
-
-  const handleWishlistClick = (e) => {
-    e.preventDefault(); // ← منع الـ navigation
-    e.stopPropagation();
-    const wasInWishlist = isInWishlist(product.id);
-    toggleWishlist(product.id);
-
-    if (wasInWishlist) {
-      success("تم الحذف من المفضلة 💔");
-    } else {
-      success("تمت الإضافة للمفضلة 💗");
-    }
-  };
-
-  const handleCardClick = (e) => {
-    e.preventDefault(); // منع الـ default navigation
-    setIsNavigating(true); // عرض الـ loader فوري!
-
-    // Navigate بعد 50ms
-    setTimeout(() => {
-      router.push(`/product/${product.id}`);
-    }, 50);
-  };
+  const { ar, en } = splitName(product.name);
 
   return (
-    <>
-      {/* Loading Overlay */}
-      {isNavigating && <LoadingScreen />}
-      <a
-        href={`/product/${product.id}`}
-        onClick={handleCardClick}
-        className="block"
-      >
-        <div className="bg-white rounded-2xl overflow-hidden shadow-md active:scale-95 transition-transform duration-200 cursor-pointer">
-          <div className="relative aspect-square overflow-hidden bg-gray-100">
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse z-0" />
-            )}
+    <article className={`mb-lift relative ${className}`}>
+      <Link href={`/product/${product.id}`} className="mb-tap block group">
+        <div className="mb-curtain relative aspect-[3/4] rounded-card lg:rounded-[24px] overflow-hidden bg-champagne-photo">
+          <ProductImage
+            src={mainImage}
+            alt={`مسكة ${product.flowerType} ${
+              product.colors?.join(" و") || ""
+            } - ${product.name} - متجر المسكات عمان الأردن`}
+            sizes={sizes || "(max-width: 1024px) 50vw, 300px"}
+            className="object-cover"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
+            quality={85}
+          />
 
-            <Image
-              src={mainImage}
-              alt={`مسكة ${product.flowerType} ${
-                product.colors?.join(" و") || ""
-              } - ${product.name} - متجر المسكات عمان الأردن`}
-              fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              className={`object-cover transition-opacity duration-300 ${
-                imageLoaded ? "opacity-100" : "opacity-0"
-              }`}
-              onLoad={() => setImageLoaded(true)}
-              loading="lazy"
-              quality={85}
-            />
-
-            <button
-              onClick={handleWishlistClick}
-              className="absolute top-2 right-2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
-            >
-              <Heart
-                className={`w-4 h-4 transition-all ${
-                  isInWishlist(product.id)
-                    ? "fill-red-500 text-red-500"
-                    : "text-gray-600"
-                }`}
-              />
-            </button>
-
-            <div className="absolute bottom-2 left-2 bg-pandora-pink/90 backdrop-blur-sm px-2 py-1 rounded-lg">
-              <span className="text-xs font-bold text-white">
-                {product.flowerType}
-              </span>
-            </div>
-          </div>
-
-          <div className="p-3">
-            <h3 className="text-sm font-bold text-gray-900 line-clamp-1 mb-1">
-              {product.name}
-            </h3>
-
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-black text-pandora-pink">
-                {product.salePrice} <span className="text-xs">د.أ</span>
-              </span>
-              <span className="text-xs text-gray-500">{product.category}</span>
-            </div>
-          </div>
+          {product.flowerType && (
+            <span className="absolute bottom-2.5 right-2.5 lg:bottom-3 lg:right-3 px-2.5 py-1 rounded-full bg-pearl/[0.92] text-[11px] lg:text-xs font-medium text-ink">
+              {flowerTypeDisplay(product.flowerType)}
+            </span>
+          )}
         </div>
-      </a>
-    </>
+
+        <div className="mt-2 px-0.5 flex flex-col gap-0.5">
+          <h3 className="font-display font-bold text-lg lg:text-[21px] leading-[1.3] text-ink line-clamp-2">
+            {ar || en}
+          </h3>
+          {ar && en && (
+            <span dir="ltr" className="text-right font-latin italic text-sm lg:text-base text-ink-muted truncate">
+              {en}
+            </span>
+          )}
+          <span className="text-sm lg:text-[15px] font-semibold text-rose">
+            {product.salePrice} د.أ
+          </span>
+        </div>
+      </Link>
+
+      <HeartButton
+        productId={product.id}
+        productName={ar || en}
+        variant="photo"
+        className="absolute top-1.5 right-1.5 lg:top-2 lg:right-2"
+      />
+    </article>
   );
 };
 

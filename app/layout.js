@@ -1,5 +1,7 @@
 import "./globals.css";
 import { ToastProvider } from "contexts/ToastContext";
+import NavFeedback from "components/NavFeedback";
+import { amiri, amiriAccent, plexArabic, cormorant } from "./fonts";
 
 export const metadata = {
   metadataBase: new URL("https://maskatblooms.com"),
@@ -57,7 +59,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className="antialiased">
+      <body
+        className={`${amiri.variable} ${amiriAccent.variable} ${plexArabic.variable} ${cormorant.variable} font-sans bg-pearl text-ink antialiased`}
+      >
+        <NavFeedback />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
