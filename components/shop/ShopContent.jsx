@@ -3,6 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useProducts } from "hooks/useProducts";
+import { hasHydrated, isTraversal } from "lib/navHistory";
 import { useReveal } from "hooks/useReveal";
 import Header from "components/Header";
 import Footer from "components/Footer";
@@ -34,15 +35,53 @@ const GRID =
 // Layout effect in the browser (runs before paint), plain effect on the server
 const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-// Server HTML is the same for /shop and /shop?q=…: before React loads, a search URL hides
-// the server grid and shows the skeleton (data-shop-q on the root, removed once React takes over)
-const MARK_SEARCH_URL =
-  'if(new URLSearchParams(location.search).get("q"))document.currentScript.parentElement.setAttribute("data-shop-q","")';
-const HIDE_ON_SEARCH_URL = "[[data-shop-q]_&]:hidden";
+// The view (search, filters, sort, page) lives in the URL query, so back/forward, reload and
+// shared links restore it: ?q=…&type=…&color=…&min=…&max=…&sort=…&page=…
+const VIEW_PARAMS = ["q", "type", "color", "min", "max", "sort", "page"];
+const SORT_VALUES = SORT_OPTIONS.map((o) => o.value);
+
+function readUrlView() {
+  const params = new URLSearchParams(window.location.search);
+  if (!VIEW_PARAMS.some((key) => params.has(key))) return null;
+  const min = Number(params.get("min"));
+  const max = Number(params.get("max"));
+  return {
+    page: Math.max(1, parseInt(params.get("page"), 10) || 1),
+    searchQuery: params.get("q") || "",
+    flowerTypes: params.getAll("type"),
+    colors: params.getAll("color"),
+    priceMin: min > 0 ? min : 0,
+    priceMax: params.has("max") && Number.isFinite(max) ? max : null,
+    sortBy: SORT_VALUES.includes(params.get("sort")) ? params.get("sort") : "default",
+  };
+}
+
+function viewQuery({ page, searchQuery, filters, sortBy, maxPrice }) {
+  const params = new URLSearchParams();
+  if (searchQuery) params.set("q", searchQuery);
+  filters.flowerTypes.forEach((value) => params.append("type", value));
+  filters.colors.forEach((value) => params.append("color", value));
+  if (filters.priceRange[0] > 0) params.set("min", String(filters.priceRange[0]));
+  if (filters.priceRange[1] < maxPrice) params.set("max", String(filters.priceRange[1]));
+  if (sortBy !== "default") params.set("sort", sortBy);
+  if (page > 1) params.set("page", String(page));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+// Server HTML is the same for every /shop URL: before React loads, a view URL hides the server
+// grid and shows the skeleton (data-shop-view on the root, removed once React takes over)
+const MARK_VIEW_URL = `if(/[?&](${VIEW_PARAMS.join("|")})=/.test(location.search))document.currentScript.parentElement.setAttribute("data-shop-view","")`;
+const HIDE_ON_VIEW_URL = "[[data-shop-view]_&]:hidden";
 
 const designsLabel = (n) => (n === 1 ? "تصميم واحد" : n === 2 ? "تصميمان" : n <= 10 ? `${n} تصاميم` : `${n} تصميمًا`);
 
 export default function ShopContent({ initialProducts = null }) {
+  // Client-side render (e.g. back to /shop?page=3): start straight from the URL view.
+  // First (hydration) render: the server's default view, then the URL view (readViewAfterMount).
+  const [urlView] = useState(() => (typeof window !== "undefined" && hasHydrated() ? readUrlView() : null));
+  const skipViewScroll = useRef(false);
+
   const {
     products,
     loading,
@@ -60,20 +99,33 @@ export default function ShopContent({ initialProducts = null }) {
     setSortBy,
     maxPrice,
     resultCount,
-  } = useProducts({ initialProducts, waitForUrlSearch: true, scrollOnPageChange: false });
+  } = useProducts({
+    initialProducts,
+    initialView: urlView,
+    readViewAfterMount: () => {
+      const view = readUrlView();
+      if (view) {
+        skipViewScroll.current = true; // restoring, not a change by the reader
+        setSearchQuery(view.searchQuery);
+        setAppliedSearch(view.searchQuery);
+      }
+      return view;
+    },
+    scrollOnPageChange: false,
+  });
 
-  // Server data in the HTML: keep the pre-hydration skeleton (for ?q=) until React takes over
-  const [serverHtml, setServerHtml] = useState(Boolean(initialProducts));
+  // Server data in the HTML: keep the pre-hydration skeleton (view URLs) until React takes over
+  const [serverHtml, setServerHtml] = useState(() => Boolean(initialProducts) && !hasHydrated());
   const rootRef = useRef(null);
   useBrowserLayoutEffect(() => {
-    rootRef.current?.removeAttribute("data-shop-q");
+    rootRef.current?.removeAttribute("data-shop-view");
     setServerHtml(false);
   }, []);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlView?.searchQuery ?? "");
   const searchRef = useRef(null);
   // Query last sent to the hook (after the debounce) → drives the scroll to the results
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState(urlView?.searchQuery ?? "");
   const applySearch = (q) => {
     updateSearch(q);
     setAppliedSearch(q);
@@ -88,19 +140,28 @@ export default function ShopContent({ initialProducts = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
-  // Home search pill → /shop?q=…  (focus the field; ?focus=search focuses only)
+  // Home search pill → /shop?q=… or ?focus=search: focus the field (not on back/forward,
+  // which would open the keyboard over the restored list)
   useEffect(() => {
+    if (isTraversal()) return;
     const params = new URLSearchParams(window.location.search);
-    const q = params.get("q");
-    if (q) {
-      setSearchQuery(q);
-      applySearch(q);
-    }
-    if (q || params.get("focus") === "search") {
+    if (params.get("q") || params.get("focus") === "search") {
       searchRef.current?.focus({ preventScroll: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Keep the URL in step with the view (replace: no extra history entries per tap)
+  const firstUrlSync = useRef(true);
+  useEffect(() => {
+    if (firstUrlSync.current) {
+      firstUrlSync.current = false; // the URL already describes the first view
+      return;
+    }
+    const query = viewQuery({ page: currentPage, searchQuery: appliedSearch, filters, sortBy, maxPrice });
+    if (query !== window.location.search) {
+      window.history.replaceState(null, "", `${window.location.pathname}${query}`);
+    }
+  }, [currentPage, appliedSearch, filters, sortBy, maxPrice]);
 
   // After a chip, filter, sort, search or page change: bring the top of the results just
   // below the sticky header (+ the mobile tools bar). Only when the reader is scrolled past it.
@@ -126,6 +187,10 @@ export default function ShopContent({ initialProducts = null }) {
   useBrowserLayoutEffect(() => {
     if (firstView.current) {
       firstView.current = false;
+      return;
+    }
+    if (skipViewScroll.current) {
+      skipViewScroll.current = false;
       return;
     }
     const results = resultsRef.current;
@@ -236,7 +301,7 @@ export default function ShopContent({ initialProducts = null }) {
   );
 
   const resultLine = !loading && (
-    <p role="status" className={`text-[13px] lg:text-sm text-ink-muted ${HIDE_ON_SEARCH_URL}`}>
+    <p role="status" className={`text-[13px] lg:text-sm text-ink-muted ${HIDE_ON_VIEW_URL}`}>
       {designsLabel(resultCount)}
     </p>
   );
@@ -257,7 +322,7 @@ export default function ShopContent({ initialProducts = null }) {
 
   return (
     <div ref={rootRef} className="min-h-screen flex flex-col" suppressHydrationWarning>
-      {serverHtml && <script dangerouslySetInnerHTML={{ __html: MARK_SEARCH_URL }} />}
+      {serverHtml && <script dangerouslySetInnerHTML={{ __html: MARK_VIEW_URL }} />}
       <Header catalog={catalog} />
 
       {/* Title */}
@@ -331,7 +396,7 @@ export default function ShopContent({ initialProducts = null }) {
 
           {(loading || serverHtml) && (
             <div
-              className={loading ? GRID : `${GRID} hidden [[data-shop-q]_&]:grid`}
+              className={loading ? GRID : `${GRID} hidden [[data-shop-view]_&]:grid`}
               aria-busy="true"
             >
               {[...Array(6)].map((_, i) => (
@@ -341,7 +406,7 @@ export default function ShopContent({ initialProducts = null }) {
           )}
 
           {!loading && (
-            <div className={`contents ${HIDE_ON_SEARCH_URL}`}>
+            <div className={`contents ${HIDE_ON_VIEW_URL}`}>
               {products.length === 0 && isFiltered ? (
                 <EmptyState
                   title="لا توجد نتائج"

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "components/ui/ProductImage";
 import SectionHeading from "components/ui/SectionHeading";
 import { usePauseOffscreen } from "hooks/useReveal";
 import { splitName } from "lib/splitName";
@@ -52,10 +52,9 @@ function Strip({ products }) {
           tabIndex={copy ? -1 : undefined}
           className={`${TILE} ${i % 2 ? "mt-[18px]" : ""} ${copy ? "motion-reduce:hidden" : ""}`}
         >
-          <Image
+          <ProductImage
             src={product.images?.[0] || "/placeholder.jpg"}
             alt=""
-            fill
             sizes="(min-width: 1024px) 210px, 132px"
             className="object-cover"
             quality={75}

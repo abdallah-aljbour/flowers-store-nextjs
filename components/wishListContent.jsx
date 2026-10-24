@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "components/ui/ProductImage";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useWishlist } from "hooks/useWishlist";
 import { useReveal } from "hooks/useReveal";
@@ -159,10 +159,9 @@ function WishlistRow({ product }) {
         href={`/product/${product.id}`}
         className="mb-tap relative shrink-0 w-[108px] h-[140px] rounded-[18px] overflow-hidden bg-champagne-photo"
       >
-        <Image
+        <ProductImage
           src={product.images?.[0] || "/placeholder.jpg"}
           alt={productAlt(product)}
-          fill
           sizes="108px"
           className="object-cover"
           quality={80}
@@ -217,10 +216,9 @@ function WishlistCard({ product }) {
           href={`/product/${product.id}`}
           className="mb-curtain relative block aspect-[3/4] rounded-[26px] overflow-hidden bg-champagne-photo"
         >
-          <Image
+          <ProductImage
             src={product.images?.[0] || "/placeholder.jpg"}
             alt={productAlt(product)}
-            fill
             sizes="(max-width: 1240px) 33vw, 300px"
             className="object-cover"
             quality={85}

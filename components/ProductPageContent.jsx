@@ -1,34 +1,18 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import { productsService } from "services/productsService";
 import ProductDetails from "components/ProductDetails";
 import { useRouter } from "next/navigation";
 import Header from "components/Header";
 import Footer from "components/Footer";
 import Button from "components/ui/Button";
-import { cameFromInsideSite, consumeTraversal } from "lib/navHistory";
+import { cameFromInsideSite } from "lib/navHistory";
 import { SHOP_PATH } from "lib/navigation";
-
-// Layout effect in the browser (runs before paint), plain effect on the server
-const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export default function ProductPageContent({ params, initialProduct = null }) {
   const router = useRouter();
 
-  // Always open at the top (back/forward keeps the restored position). Next.js resets the scroll
-  // too, but iOS Safari ignores a scroll reset while a momentum scroll is still running, so
-  // overflow is locked for one frame to stop it first.
-  useBrowserLayoutEffect(() => {
-    if (consumeTraversal() || window.scrollY === 0) return;
-    const root = document.documentElement;
-    const previous = root.style.overflow;
-    root.style.overflow = "hidden";
-    window.scrollTo(0, 0);
-    requestAnimationFrame(() => {
-      root.style.overflow = previous;
-    });
-  }, [params.id]);
   const [product, setProduct] = useState(initialProduct);
   const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState(null);

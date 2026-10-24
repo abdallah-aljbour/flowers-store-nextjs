@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "components/ui/ProductImage";
 import { ArrowLeft } from "lucide-react";
 import HeartButton from "components/ui/HeartButton";
 import OrderLink from "components/ui/OrderLink";
@@ -68,10 +68,9 @@ function FeatureCard({ product }) {
         href={productHref(product)}
         className="mb-curtain relative block aspect-[4/5] rounded-hero lg:rounded-[32px] overflow-hidden bg-champagne-photo"
       >
-        <Image
+        <ProductImage
           src={product.images?.[0] || "/placeholder.jpg"}
           alt={productAlt(product)}
-          fill
           sizes="(min-width: 1240px) 600px, (min-width: 1024px) 48vw, 100vw"
           className="object-cover"
           quality={85}
@@ -125,10 +124,9 @@ function PairCard({ product, number, offset = false }) {
           href={productHref(product)}
           className="mb-curtain relative block aspect-[3/4] rounded-card lg:rounded-[24px] overflow-hidden bg-champagne-photo"
         >
-          <Image
+          <ProductImage
             src={product.images?.[0] || "/placeholder.jpg"}
             alt={productAlt(product)}
-            fill
             sizes="(min-width: 1240px) 290px, (min-width: 1024px) 24vw, 50vw"
             className="object-cover"
             quality={85}
@@ -185,10 +183,9 @@ function WideCard({ product }) {
         aria-hidden="true"
         className="mb-curtain relative w-[46%] shrink-0 bg-champagne-photo"
       >
-        <Image
+        <ProductImage
           src={product.images?.[0] || "/placeholder.jpg"}
           alt={productAlt(product)}
-          fill
           sizes="(min-width: 1024px) 270px, 46vw"
           className="object-cover"
           quality={85}

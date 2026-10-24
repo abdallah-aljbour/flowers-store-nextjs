@@ -15,6 +15,10 @@
 .mb-page:has(#mb-intro){animation-name:mbFadeIn}
 /* First page load (server HTML, set in app/template.js): fade only, so the slide never shifts the first paint */
 .mb-page-first{animation-name:mbFadeIn}
+/* Back/forward (app/template.js): the page returns as it was left, no slide and no entrance animations */
+.mb-page.mb-back,
+.mb-back .mb-word,.mb-back .mb-hero-in,.mb-back .mb-zoom,
+.mb-back .mb-curtain.is-in,.mb-back .mb-curtain.is-in img,.mb-back .mb-rv.is-in{animation:none}
 
 /* ---------- 2 · logo intro (first visit per session) ---------- */
 @keyframes mbWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
@@ -94,12 +98,15 @@
 .mb-tap:active{transform:scale(.97)}
 /* product links: pressed photo, then "opening" until the next page shows (components/NavFeedback) */
 @keyframes mbPending{from{opacity:.75}to{opacity:.45}}
-a[href^="/product/"] img{transition:opacity .15s ease}
 a[href^="/product/"]:active img{opacity:.8}
 a[data-nav-pending]{cursor:progress}
 a[href^="/product/"][data-nav-pending] img{animation:mbPending .7s ease-in-out infinite alternate} /* beats .mb-curtain.is-in img */
 .mb-lift img{transition:transform .6s var(--ease-soft)}
 @media (hover:hover){ .mb-lift:hover img{transform:scale(1.04)} }
+
+/* ---------- 9b · photo placeholder (components/ui/ProductImage) ---------- */
+@keyframes mbShimmer{from{background-position:130% 0}to{background-position:-30% 0}}
+.mb-shimmer{background:#F1E8DA linear-gradient(100deg,rgba(248,241,231,0) 20%,#FBF6EE 50%,rgba(248,241,231,0) 80%) no-repeat;background-size:60% 100%;animation:mbShimmer 1.3s ease-in-out infinite}
 
 /* ---------- 10 · reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
@@ -115,4 +122,5 @@ a[href^="/product/"][data-nav-pending] img{animation:mbPending .7s ease-in-out i
   .mb-tap:active{transform:none}
   a[href^="/product/"][data-nav-pending] img{animation:none;opacity:.6}
   .mb-lift img{transition:none}
+  .mb-shimmer{animation:none}
 }

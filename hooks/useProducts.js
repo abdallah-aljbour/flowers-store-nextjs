@@ -1,9 +1,9 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { productsService } from "../services/productsService";
+import { DEFAULT_MAX_PRICE, DEFAULT_VIEW, highestPriceOf, buildView, seedView } from "lib/catalogView";
 
 const CACHE_KEY = "products_cache";
 const CACHE_DURATION = 10 * 1000; // 30 ثانية
-const DEFAULT_MAX_PRICE = 40; // قبل تحميل المنتجات
 // const CACHE_DURATION = 24 * 60 * 60 * 1000; // يوم كامل
 
 const getCachedProducts = () => {
@@ -35,111 +35,63 @@ const setCachedProducts = (products) => {
   }
 };
 
-// أعلى سعر بين المنتجات (غير الحقائب)
-const highestPriceOf = (allProducts) =>
-  Math.ceil(
-    Math.max(0, ...allProducts.filter((p) => p.type !== "bag").map((p) => Number(p.salePrice) || 0))
-  ) || DEFAULT_MAX_PRICE;
-
-// Filter → Sort → Pagination (20 لكل صفحة)
-const buildView = (allProducts, { searchQuery, filters, priceMax, sortBy, currentPage }) => {
-  // Filter
-  const filteredProducts = allProducts.filter((p) => {
-    const matchesSearch = searchQuery
-      ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
-      : true;
-
-    const matchesFlowerType =
-      filters.flowerTypes.length > 0
-        ? filters.flowerTypes.includes(p.flowerType)
-        : true;
-
-    const matchesColor =
-      filters.colors.length > 0
-        ? p.colors.some((color) => filters.colors.includes(color))
-        : true;
-
-    const matchesPrice =
-      p.salePrice >= filters.priceRange[0] &&
-      p.salePrice <= priceMax;
-
-    const isNotBag = p.type !== "bag";
-
-    return (
-      isNotBag && matchesSearch && matchesFlowerType && matchesColor && matchesPrice
-    );
-  });
-
-  // Sort
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "price-low") return a.salePrice - b.salePrice;
-    if (sortBy === "price-high") return b.salePrice - a.salePrice;
-    return 0;
-  });
-
-  // Pagination (20 لكل صفحة)
-  const startIndex = (currentPage - 1) * 20;
-  const endIndex = startIndex + 20;
-  const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
-
-  return {
-    paginatedProducts,
-    total: sortedProducts.length,
-    hasMore: endIndex < sortedProducts.length,
-  };
-};
-
 // Layout effect in the browser (runs before paint), plain effect on the server
 const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-// initialProducts: same getAll() list fetched on the server (app/shop/page.js) → the
-// default view (page 1, no search/filters, default sort) renders with the HTML
-// waitForUrlSearch: the caller applies ?q= on mount (ShopContent), so the default list is not shown first
+// initialProducts: the same getAll() list fetched on the server (app/shop/page.js, app/page.js),
+//   so the first view renders with the HTML
+// initialView: start from this view (client-side render, e.g. back to /shop?page=3)
+// readViewAfterMount: called once after the first (hydration) render, which must match the
+//   server's default view; a view it returns is applied before the first fetch (skeleton, then results)
 // scrollOnPageChange: false when the caller scrolls itself (ShopContent: to the top of the results)
-export const useProducts = ({ initialProducts = null, waitForUrlSearch = false, scrollOnPageChange = true } = {}) => {
-  const [seed] = useState(() => {
-    if (!initialProducts) return null;
-    const highest = highestPriceOf(initialProducts);
-    const view = buildView(initialProducts, {
-      searchQuery: "",
-      filters: { flowerTypes: [], colors: [], priceRange: [0, highest] },
-      priceMax: highest,
-      sortBy: "default",
-      currentPage: 1,
-    });
-    return { highest, ...view };
-  });
+export const useProducts = ({
+  initialProducts = null,
+  initialView = null,
+  readViewAfterMount = null,
+  scrollOnPageChange = true,
+} = {}) => {
+  const [start] = useState(() => ({ ...DEFAULT_VIEW, ...initialView }));
+  const [seed] = useState(() => (initialProducts ? seedView(initialProducts, start) : null));
   // First client refresh after server data: no skeleton
   const skipLoadingOnce = useRef(Boolean(seed));
-  // ?q= value not applied yet → keep the skeleton until that search runs
-  const pendingUrlQuery = useRef(null);
+  // The mount fetch runs with the default view while a URL view is being applied: skip it
+  const skipDefaultFetch = useRef(false);
 
   const [products, setProducts] = useState(seed ? seed.paginatedProducts : []);
   const [loading, setLoading] = useState(!seed);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(start.page);
   const [lastDocs, setLastDocs] = useState({});
   const [hasMore, setHasMore] = useState(seed ? seed.hasMore : true);
   const [totalCount, setTotalCount] = useState(seed ? seed.total : 0);
   const [resultCount, setResultCount] = useState(seed ? seed.total : 0); // عدد النتائج بعد الفلترة (للعرض فقط)
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("default");
+  const [searchQuery, setSearchQuery] = useState(start.searchQuery);
+  const [sortBy, setSortBy] = useState(start.sortBy);
   const [maxPrice, setMaxPrice] = useState(seed ? seed.highest : DEFAULT_MAX_PRICE);
   const [filters, setFilters] = useState({
-    flowerTypes: [],
-    colors: [],
-    priceRange: [0, seed ? seed.highest : DEFAULT_MAX_PRICE],
+    flowerTypes: start.flowerTypes,
+    colors: start.colors,
+    priceRange: [start.priceMin, seed ? seed.max : start.priceMax ?? DEFAULT_MAX_PRICE],
   });
 
-  // Search from Home (/shop?q=…): the default list is not the result → skeleton, then the results
+  // Full page load of a view URL (/shop?q=…&page=…): the server HTML is the default view, so the
+  // URL view is applied right after hydration, with the skeleton until its results are ready
   useBrowserLayoutEffect(() => {
-    const q = waitForUrlSearch ? new URLSearchParams(window.location.search).get("q") : null;
-    if (q) {
-      pendingUrlQuery.current = q;
-      skipLoadingOnce.current = false;
-      setLoading(true);
-    }
+    if (initialView || !readViewAfterMount) return;
+    const view = readViewAfterMount();
+    if (!view) return;
+    const v = { ...DEFAULT_VIEW, ...view };
+    skipDefaultFetch.current = true;
+    skipLoadingOnce.current = false;
+    setLoading(true);
+    setCurrentPage(v.page);
+    setSearchQuery(v.searchQuery);
+    setSortBy(v.sortBy);
+    setFilters((prev) => ({
+      flowerTypes: v.flowerTypes,
+      colors: v.colors,
+      priceRange: [v.priceMin, v.priceMax ?? prev.priceRange[1]],
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -162,9 +114,9 @@ export const useProducts = ({ initialProducts = null, waitForUrlSearch = false, 
 
   useEffect(() => {
     const fetchAllProducts = async () => {
-      if (pendingUrlQuery.current !== null) {
-        if (searchQuery !== pendingUrlQuery.current) return; // default list before the ?q= search
-        pendingUrlQuery.current = null;
+      if (skipDefaultFetch.current) {
+        skipDefaultFetch.current = false; // default view before the URL view: skip
+        return;
       }
       try {
         if (skipLoadingOnce.current) skipLoadingOnce.current = false;

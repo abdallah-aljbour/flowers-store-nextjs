@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import ProductImage from "components/ui/ProductImage";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search } from "lucide-react";
 import { useProducts } from "hooks/useProducts";
@@ -32,8 +33,10 @@ const heroDelay = (seconds) => ({
 
 // Home landing (DESIGN_SPEC §4.1). Products come from the existing catalog hook:
 // first 4 in their stored order for the lookbook, the next 8 for the photo strip.
-export default function HomeContent() {
-  const { products, loading, error } = useProducts();
+export default function HomeContent({ initialProducts = null }) {
+  // Server data → full page on the first render (and on back to Home, so the scroll restores);
+  // no scroll to the top on mount (Home has no pages)
+  const { products, loading, error } = useProducts({ initialProducts, scrollOnPageChange: false });
 
   const edit = error ? [] : products.slice(0, 4);
   const strip = error ? [] : products.slice(4, 12);
@@ -165,10 +168,9 @@ function FloatingCard({ product }) {
       style={heroDelay(0.8)}
     >
       <span className="relative block h-[156px] rounded-[18px] overflow-hidden bg-champagne-photo">
-        <Image
+        <ProductImage
           src={product.images?.[0] || "/placeholder.jpg"}
           alt={productAlt(product)}
-          fill
           sizes="210px"
           className="object-cover"
         />

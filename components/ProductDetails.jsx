@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
+import ProductImage from "components/ui/ProductImage";
 import {
   ArrowRight,
   Share2,
@@ -284,12 +285,13 @@ function MobileGallery({ images, index, onIndexChange, imageAlt, onBack, onShare
             className="relative shrink-0 w-full h-full snap-start"
             aria-hidden={i !== index ? "true" : undefined}
           >
-            <FadeImage
+            <ProductImage
               src={src}
               alt={imageAlt(i)}
               sizes={GALLERY_SIZES}
               priority={i === 0}
               loading={i === 0 ? undefined : i === 1 ? "eager" : "lazy"}
+              quality={90}
             />
           </div>
         ))}
@@ -384,12 +386,13 @@ function DesktopGallery({ images, index, onIndexChange, imageAlt }) {
 
       <div className="relative flex-1 min-w-0 aspect-[4/5] rounded-[32px] overflow-hidden bg-champagne-photo">
         {images[index] && (
-          <FadeImage
+          <ProductImage
             key={index}
             src={images[index]}
             alt={imageAlt(index)}
             sizes={GALLERY_SIZES}
             priority={index === 0}
+            quality={90}
           />
         )}
         {count > 1 && (
@@ -402,25 +405,6 @@ function DesktopGallery({ images, index, onIndexChange, imageAlt }) {
         )}
       </div>
     </div>
-  );
-}
-
-// next/image on a champagne placeholder, fading in once loaded (no spinner).
-// The priority (first) photo shows at once: a fade from opacity 0 delays LCP.
-function FadeImage({ src, alt, sizes, priority = false, loading }) {
-  const [loaded, setLoaded] = useState(priority);
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      sizes={sizes}
-      priority={priority}
-      loading={priority ? undefined : loading}
-      quality={90}
-      onLoad={() => setLoaded(true)}
-      className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
-    />
   );
 }
 
@@ -497,10 +481,9 @@ function RelatedProducts({ products }) {
               <Link href={`/product/${p.id}`} className="mb-tap mb-lift flex flex-col gap-1.5 lg:gap-2 text-ink">
                 <span className="relative block aspect-[3/4] rounded-[20px] lg:rounded-[24px] overflow-hidden bg-champagne-photo">
                   {p.images?.[0] && (
-                    <Image
+                    <ProductImage
                       src={p.images[0]}
                       alt={`مسكة ${p.flowerType} ${p.colors?.join(" و") || ""} - ${p.name} - متجر المسكات عمان الأردن`}
-                      fill
                       sizes="(min-width: 1024px) 280px, 150px"
                       className="object-cover"
                     />

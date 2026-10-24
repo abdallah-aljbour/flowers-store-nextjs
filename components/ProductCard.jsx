@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "components/ui/ProductImage";
 import HeartButton from "components/ui/HeartButton";
 import { splitName } from "lib/splitName";
 import { flowerTypeDisplay } from "lib/catalogOptions";
@@ -10,8 +9,6 @@ import { flowerTypeDisplay } from "lib/catalogOptions";
 // Catalog card (DESIGN_SPEC §3.5): 3:4 photo, flower-type pill, heart, bilingual name, price.
 // No card background or shadow. Navigation is a plain <Link>; app/template.js gives feedback.
 export const ProductCard = ({ product, sizes, priority = false, className = "" }) => {
-  // Priority (above-the-fold) photos show at once: a fade from opacity 0 delays LCP
-  const [imageLoaded, setImageLoaded] = useState(priority);
   const mainImage = product.images?.[0] || "/placeholder.jpg";
   const { ar, en } = splitName(product.name);
 
@@ -19,17 +16,13 @@ export const ProductCard = ({ product, sizes, priority = false, className = "" }
     <article className={`mb-lift relative ${className}`}>
       <Link href={`/product/${product.id}`} className="mb-tap block group">
         <div className="mb-curtain relative aspect-[3/4] rounded-card lg:rounded-[24px] overflow-hidden bg-champagne-photo">
-          <Image
+          <ProductImage
             src={mainImage}
             alt={`مسكة ${product.flowerType} ${
               product.colors?.join(" و") || ""
             } - ${product.name} - متجر المسكات عمان الأردن`}
-            fill
             sizes={sizes || "(max-width: 1024px) 50vw, 300px"}
-            className={`object-cover transition-opacity duration-500 ${
-              imageLoaded ? "opacity-100" : "opacity-0"
-            }`}
-            onLoad={() => setImageLoaded(true)}
+            className="object-cover"
             priority={priority}
             loading={priority ? undefined : "lazy"}
             quality={85}
