@@ -19,6 +19,8 @@ const CIRCLE = {
   photo: "w-10 h-10 bg-white/95", // on top of product photos
   outline: "w-11 h-11 bg-white border border-line", // on pearl surfaces
   rose: "w-10 h-10 bg-white border-[1.5px] border-rose", // wishlist rows
+  overlay: "w-11 h-11 bg-pearl/[0.94]", // product gallery top bar
+  "rose-lg": "w-[58px] h-[58px] bg-white border-[1.5px] border-rose", // desktop product CTA (pass !w-[58px] !h-[58px])
 };
 
 export default function HeartButton({

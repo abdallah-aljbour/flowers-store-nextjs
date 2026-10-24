@@ -19,7 +19,8 @@ const iconLink =
 
 // Site header (DESIGN_SPEC §3.7 / §3.8). Pass `catalog` (filters, sort and their
 // handlers) on the catalog page to add the filter / sort levels to the menu drawer.
-export default function Header({ catalog }) {
+// `className` is added to the <header> (e.g. "max-lg:hidden" on the product page).
+export default function Header({ catalog, className = "" }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const currentKey = activeNavKey(pathname);
@@ -49,7 +50,7 @@ export default function Header({ catalog }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-pearl/90 backdrop-blur-md border-b border-line">
+      <header className={`sticky top-0 z-50 bg-pearl/90 backdrop-blur-md border-b border-line ${className}`}>
         {/* Mobile */}
         <div className="lg:hidden h-16 px-4 flex items-center justify-between">
           <button

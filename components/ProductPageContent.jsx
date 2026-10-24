@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { productsService } from "services/productsService";
 import ProductDetails from "components/ProductDetails";
-import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Header from "components/Header";
 import Footer from "components/Footer";
-import LoadingScreen from "components/LoadingScreen";
+import Button from "components/ui/Button";
+import { cameFromInsideSite } from "lib/navHistory";
+import { SHOP_PATH } from "lib/navigation";
 
 export default function ProductPageContent({ params }) {
   const router = useRouter();
@@ -36,30 +38,58 @@ export default function ProductPageContent({ params }) {
     fetchProduct();
   }, [params.id]);
 
+  // Back: previous page when it is ours, otherwise the collection
+  const handleBack = () => {
+    if (cameFromInsideSite()) router.back();
+    else router.push(SHOP_PATH);
+  };
+
   if (loading) {
-    return <LoadingScreen />;
+    return <ProductPageSkeleton />;
   }
 
   if (error || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm">
-          <span className="text-4xl mb-4 block">⚠️</span>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            المنتج غير موجود
-          </h2>
-          <p className="text-sm text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => router.push("/")}
-            className="px-6 py-2 bg-pandora-pink text-white rounded-lg font-medium"
-          >
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+          <h2 className="font-display font-bold text-[28px] text-ink">المنتج غير موجود</h2>
+          <p className="text-sm text-ink-muted">{error}</p>
+          <Button href="/" className="mt-2">
             العودة للرئيسية
-          </button>
+          </Button>
         </div>
-        <Footer />
+        <Footer compact />
       </div>
     );
   }
 
-  return <ProductDetails product={product} onBack={() => router.push("/")} />;
+  return <ProductDetails product={product} onBack={handleBack} />;
+}
+
+// Page-shaped placeholder: photo block + text bars (replaces the full-screen loader)
+function ProductPageSkeleton() {
+  const bar = "rounded-full bg-champagne";
+  return (
+    <div className="min-h-screen flex flex-col" aria-busy="true">
+      <Header className="max-lg:hidden" />
+      <span className="sr-only" role="status">جارٍ تحميل المسكة</span>
+      <div
+        aria-hidden="true"
+        className="motion-safe:animate-pulse w-full lg:max-w-container lg:mx-auto lg:px-6 lg:pt-[62px] lg:flex lg:items-start lg:gap-[60px]"
+      >
+        <div className="w-full aspect-[4/5] max-h-[82vh] bg-champagne-photo lg:flex-[1_1_500px] lg:max-h-none lg:rounded-[32px]" />
+        <div className="relative -mt-6 rounded-t-[28px] bg-pearl px-5 pt-[26px] flex flex-col gap-3 lg:mt-0 lg:p-0 lg:flex-[1_1_400px] lg:gap-4">
+          <div className={`${bar} h-6 w-20`} />
+          <div className={`${bar} h-9 w-3/4`} />
+          <div className={`${bar} h-5 w-1/2`} />
+          <div className={`${bar} h-10 w-28 mt-2`} />
+          <div className="h-px bg-line my-3" />
+          <div className={`${bar} h-4 w-full`} />
+          <div className={`${bar} h-4 w-11/12`} />
+          <div className={`${bar} h-4 w-2/3`} />
+        </div>
+      </div>
+    </div>
+  );
 }
