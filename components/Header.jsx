@@ -1,156 +1,137 @@
 "use client";
 
-import { Flower, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import SearchBar from "./SearchBar";
+import { Heart, Search } from "lucide-react";
 import BurgerMenu from "./BurgerMenu";
+import Logo from "components/ui/Logo";
+import Button from "components/ui/Button";
+import WishlistBadge from "components/ui/WishlistBadge";
+import WhatsAppIcon from "components/ui/WhatsAppIcon";
+import { useWishlist } from "hooks/useWishlist";
+import { NAV_LINKS, SHOP_PATH, activeNavKey } from "lib/navigation";
+import { WHATSAPP_URL } from "lib/contact";
+import { countActiveFilters } from "lib/catalogOptions";
 
-export default function Header({
-  searchQuery,
-  onSearchChange,
-  filters,
-  onFilterChange,
-  onClearFilters,
-  sortBy,
-  onSortChange,
-}) {
+const iconLink =
+  "mb-tap relative w-11 h-11 shrink-0 rounded-full bg-white flex items-center justify-center";
+
+// Site header (DESIGN_SPEC §3.7 / §3.8). Pass `catalog` (filters, sort and their
+// handlers) on the catalog page to add the filter / sort levels to the menu drawer.
+export default function Header({ catalog }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const currentKey = activeNavKey(pathname);
+  const { wishlistCount } = useWishlist();
+  const onWishlist = currentKey === "wishlist";
 
-  const activeFiltersCount =
-    filters.flowerTypes.length +
-    filters.colors.length +
-    (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 40 ? 1 : 0);
+  const activeFiltersCount = catalog ? countActiveFilters(catalog.filters, catalog.maxPrice) : 0;
 
-  const removeFlowerType = (type) => {
-    onFilterChange(
-      "flowerTypes",
-      filters.flowerTypes.filter((t) => t !== type)
-    );
-  };
+  const wishlistLabel =
+    wishlistCount > 0 ? `المفضلة، ${wishlistCount} محفوظة` : "المفضلة";
 
-  const removeColor = (color) => {
-    onFilterChange(
-      "colors",
-      filters.colors.filter((c) => c !== color)
-    );
-  };
-
-  const removePriceFilter = () => {
-    onFilterChange("priceRange", [0, 40]);
-  };
+  const wishlistButton = (
+    <Link
+      href="/wishlist"
+      aria-label={wishlistLabel}
+      aria-current={onWishlist ? "page" : undefined}
+      className={`${iconLink} ${onWishlist ? "border-[1.5px] border-rose" : "border border-line"}`}
+    >
+      <Heart
+        className={`w-5 h-5 text-rose ${onWishlist ? "fill-rose" : ""}`}
+        strokeWidth={1.6}
+        aria-hidden="true"
+      />
+      <WishlistBadge count={wishlistCount} />
+    </Link>
+  );
 
   return (
     <>
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="px-4 py-3">
-          {/* Logo + Menu */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-gradient-to-br from-pandora-pink to-pink-400 rounded-full flex items-center justify-center shadow-md">
-                <Flower className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">
-                  متجر المسكات 🌸
-                </h1>
-                <p className="text-xs text-gray-600">
-                  تصاميم مميزة لأجمل المناسبات
-                </p>
-              </div>
-            </div>
+      <header className="sticky top-0 z-50 bg-pearl/90 backdrop-blur-md border-b border-line">
+        {/* Mobile */}
+        <div className="lg:hidden h-16 px-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="فتح القائمة"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            className={`${iconLink} border border-line text-ink`}
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h10" />
+            </svg>
+          </button>
 
+          <Link href="/" aria-label="متجر المسكات — الرئيسية" className="flex">
+            <Logo size={54} priority />
+          </Link>
+
+          {wishlistButton}
+        </div>
+
+        {/* Desktop */}
+        <div className="hidden lg:flex max-w-container mx-auto px-6 py-2.5 items-center justify-between gap-4">
+          <Link href="/" aria-label="متجر المسكات — الرئيسية" className="flex">
+            <Logo size={68} priority />
+          </Link>
+
+          <nav aria-label="القائمة الرئيسية" className="flex gap-[34px] text-[15px] font-medium">
+            {NAV_LINKS.map((link) => {
+              const current = link.key === currentKey;
+              return (
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  aria-current={current ? "page" : undefined}
+                  className={`pb-1 border-b-[1.5px] transition-colors ${
+                    current ? "text-rose border-rose" : "text-ink border-transparent hover:text-rose"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-2.5">
+            <Link href={SHOP_PATH} aria-label="بحث في المجموعة" className={`${iconLink} border border-line text-ink`}>
+              <Search className="w-5 h-5" strokeWidth={1.6} aria-hidden="true" />
+            </Link>
+            {wishlistButton}
+            {/* Opens the drawer on desktop too, so catalog filters stay reachable */}
             <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label="فتح القائمة"
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              className={`${iconLink} border border-line text-ink ${catalog ? "" : "hidden"}`}
             >
-              <Menu className="w-5 h-5 text-gray-700" />
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h10" />
+              </svg>
             </button>
+            <Button variant="whatsapp" href={WHATSAPP_URL} external className="!min-h-[44px] !px-[18px] text-sm">
+              <WhatsAppIcon className="w-[18px] h-[18px]" />
+              تواصلي معنا
+            </Button>
           </div>
-
-          {/* Search - دايماً ظاهر */}
-          <SearchBar value={searchQuery} onChange={onSearchChange} />
-
-          {/* Active Filters Chips */}
-          {(activeFiltersCount > 0 || sortBy !== "default") && (
-            <div className="mt-2 flex flex-wrap gap-2 items-center">
-              {/* Flower Types */}
-              {filters.flowerTypes.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => removeFlowerType(type)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-pandora-pink/10 text-pandora-pink border border-pandora-pink/20 rounded-full text-xs font-medium hover:bg-pandora-pink/20 transition-colors"
-                >
-                  <span>{type}</span>
-                  <X className="w-3 h-3" />
-                </button>
-              ))}
-
-              {/* Colors */}
-              {filters.colors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => removeColor(color)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-pandora-pink/10 text-pandora-pink border border-pandora-pink/20 rounded-full text-xs font-medium hover:bg-pandora-pink/20 transition-colors"
-                >
-                  <span>{color}</span>
-                  <X className="w-3 h-3" />
-                </button>
-              ))}
-
-              {/* Price Range */}
-              {(filters.priceRange[0] !== 0 ||
-                filters.priceRange[1] !== 40) && (
-                <button
-                  onClick={removePriceFilter}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-pandora-pink/10 text-pandora-pink border border-pandora-pink/20 rounded-full text-xs font-medium hover:bg-pandora-pink/20 transition-colors"
-                >
-                  <span>
-                    {filters.priceRange[0]}-{filters.priceRange[1]} د.أ
-                  </span>
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-
-              {/* Sort Chip */}
-              {sortBy !== "default" && (
-                <button
-                  onClick={() => onSortChange("default")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-600 border border-purple-200 rounded-full text-xs font-medium hover:bg-purple-100 transition-colors"
-                >
-                  <span>
-                    {sortBy === "price-low" && "💰 الأرخص"}
-                    {sortBy === "price-high" && "💎 الأغلى"}
-                  </span>
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-
-              {/* Clear All */}
-              <button
-                onClick={() => {
-                  onClearFilters();
-                  onSortChange("default");
-                }}
-                className="px-3 py-1.5 text-xs text-red-600 font-medium hover:text-red-700 transition-colors"
-              >
-                مسح الكل
-              </button>
-            </div>
-          )}
         </div>
       </header>
 
-      {/* Burger Menu */}
       <BurgerMenu
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
-        filters={filters}
-        onFilterChange={onFilterChange}
-        onClearFilters={onClearFilters}
-        sortBy={sortBy}
-        onSortChange={onSortChange}
+        filters={catalog?.filters}
+        onFilterChange={catalog?.onFilterChange}
+        onClearFilters={catalog?.onClearFilters}
+        sortBy={catalog?.sortBy}
+        onSortChange={catalog?.onSortChange}
         activeFiltersCount={activeFiltersCount}
+        maxPrice={catalog?.maxPrice}
       />
     </>
   );

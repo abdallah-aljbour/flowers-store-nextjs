@@ -3,6 +3,7 @@ import { productsService } from "../services/productsService";
 
 const CACHE_KEY = "products_cache";
 const CACHE_DURATION = 10 * 1000; // 30 ثانية
+const DEFAULT_MAX_PRICE = 40; // قبل تحميل المنتجات
 // const CACHE_DURATION = 24 * 60 * 60 * 1000; // يوم كامل
 
 const getCachedProducts = () => {
@@ -44,10 +45,11 @@ export const useProducts = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
+  const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE);
   const [filters, setFilters] = useState({
     flowerTypes: [],
     colors: [],
-    priceRange: [0, 40],
+    priceRange: [0, DEFAULT_MAX_PRICE],
   });
 
   // جلب إجمالي العدد (مرة واحدة)
@@ -80,6 +82,22 @@ export const useProducts = () => {
           setCachedProducts(allProducts); // احفظ في الـ cache
         }
 
+        // أعلى سعر بين المنتجات = الحد الأقصى الافتراضي، حتى ما ينخفى أي منتج
+        const highestPrice =
+          Math.ceil(
+            Math.max(0, ...allProducts.filter((p) => p.type !== "bag").map((p) => Number(p.salePrice) || 0))
+          ) || DEFAULT_MAX_PRICE;
+        // لو الحد الأقصى ما تغيّر من المستخدم، استخدم أعلى سعر
+        const priceMax = filters.priceRange[1] === maxPrice ? highestPrice : filters.priceRange[1];
+        if (highestPrice !== maxPrice) {
+          setMaxPrice(highestPrice);
+          setFilters((prev) =>
+            prev.priceRange[1] === maxPrice
+              ? { ...prev, priceRange: [prev.priceRange[0], highestPrice] }
+              : prev
+          );
+        }
+
         // Filter
         const filteredProducts = allProducts.filter((p) => {
           const matchesSearch = searchQuery
@@ -99,7 +117,7 @@ export const useProducts = () => {
 
           const matchesPrice =
             p.salePrice >= filters.priceRange[0] &&
-            p.salePrice <= filters.priceRange[1];
+            p.salePrice <= priceMax;
 
           const isNotBag = p.type !== "bag";
 
@@ -131,7 +149,7 @@ export const useProducts = () => {
     };
 
     fetchAllProducts();
-  }, [currentPage, searchQuery, filters, sortBy]);
+  }, [currentPage, searchQuery, filters, sortBy, maxPrice]);
 
   const goToNextPage = () => {
     if (hasMore) {
@@ -154,7 +172,7 @@ export const useProducts = () => {
     setFilters({
       flowerTypes: [],
       colors: [],
-      priceRange: [0, 40],
+      priceRange: [0, maxPrice],
     });
     setCurrentPage(1);
   };
@@ -176,5 +194,6 @@ export const useProducts = () => {
     clearFilters,
     sortBy,
     setSortBy,
+    maxPrice,
   };
 };

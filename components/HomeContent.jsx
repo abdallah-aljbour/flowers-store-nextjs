@@ -6,6 +6,8 @@ import ProductCard from "components/ProductCard";
 import ProductDetails from "components/ProductDetails";
 import Pagination from "components/Pagination";
 import Header from "components/Header";
+import SearchBar from "components/SearchBar";
+import ActiveFilters from "components/ActiveFilters";
 import Footer from "components/Footer";
 import ProductCardSkeleton from "components/ProductCardSkeleton";
 import LoadingScreen from "components/LoadingScreen";
@@ -29,6 +31,7 @@ export default function HomeContent() {
     clearFilters,
     sortBy,
     setSortBy,
+    maxPrice,
   } = useProducts();
 
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -85,15 +88,28 @@ export default function HomeContent() {
   return (
     <div className="min-h-screen bg-gray-50 pb-6">
       <Header
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        currentPage={currentPage}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={clearFilters}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
+        catalog={{
+          filters,
+          onFilterChange: handleFilterChange,
+          onClearFilters: clearFilters,
+          sortBy,
+          onSortChange: setSortBy,
+          maxPrice,
+        }}
       />
+
+      {/* Interim (until /shop in Phase 3): search + active filters, moved out of the header */}
+      <div className="px-4 pt-3 pb-2 bg-pearl border-b border-line">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <ActiveFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={clearFilters}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          maxPrice={maxPrice}
+        />
+      </div>
 
       <div className="bg-gradient-to-r from-pandora-pink/10 to-pink-100/20 border-b border-pandora-pink/20">
         <div className="max-w-4xl mx-auto px-4 py-3">

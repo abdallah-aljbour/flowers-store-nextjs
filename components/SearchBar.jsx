@@ -1,30 +1,44 @@
 "use client";
 
+import { forwardRef } from "react";
 import { Search, X } from "lucide-react";
 
-export default function SearchBar({
-  value,
-  onChange,
-  placeholder = "ابحث عن مسكة...",
-}) {
+// Champagne search field, 48px (DESIGN_SPEC §4.2). Magnifier at the start (right).
+const SearchBar = forwardRef(function SearchBar(
+  { value, onChange, placeholder = "ابحثي عن مسكة…", label = "البحث في المجموعة", className = "" },
+  ref
+) {
   return (
-    <div className="relative">
-      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    <div className={`relative ${className}`}>
+      <Search
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-ink-muted pointer-events-none"
+        strokeWidth={1.7}
+        aria-hidden="true"
+      />
       <input
-        type="text"
+        ref={ref}
+        type="search"
+        enterKeyHint="search"
+        aria-label={label}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pr-10 pl-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-pandora-pink/20 focus:border-pandora-pink transition-all"
+        className="w-full h-12 pr-11 pl-12 rounded-full bg-champagne border border-transparent text-base text-ink placeholder:text-ink-muted focus:outline-none focus:bg-white focus:border-rose transition-colors [&::-webkit-search-cancel-button]:appearance-none"
       />
       {value && (
         <button
+          type="button"
           onClick={() => onChange("")}
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+          aria-label="مسح البحث"
+          className="absolute left-0.5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-ink-muted"
         >
-          <X className="w-3 h-3 text-gray-600" />
+          <span className="w-6 h-6 rounded-full bg-white border border-line flex items-center justify-center">
+            <X className="w-3.5 h-3.5" strokeWidth={1.8} />
+          </span>
         </button>
       )}
     </div>
   );
-}
+});
+
+export default SearchBar;

@@ -9,7 +9,8 @@
 
 /* ---------- 1 · page transition (used by app/template.js) ---------- */
 @keyframes mbPageIn{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
-.mb-page{animation:mbPageIn .34s var(--ease-soft) both}
+/* fill-mode backwards (not both): a filled transform would make .mb-page the containing block for position:fixed children */
+.mb-page{animation:mbPageIn .34s var(--ease-soft) backwards}
 
 /* ---------- 2 · logo intro (first visit per session) ---------- */
 @keyframes mbWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
@@ -91,7 +92,7 @@
 
 /* ---------- 10 · reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
-  .mb-page{animation:mbFadeIn .15s ease both}
+  .mb-page{animation:mbFadeIn .15s ease backwards}
   .mb-intro{display:none}
   .mb-word,.mb-zoom,.mb-pop,.mb-bump,.mb-toast,.mb-fab,.mb-bar-in,.mb-sheet-in,.mb-drawer-in,.mb-drawer-in .mb-drawer-link{animation:none}
   .mb-sheet-out,.mb-drawer-out,.mb-scrim-out{animation:mbFadeOut .12s ease both}

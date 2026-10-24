@@ -11,7 +11,7 @@ export default function ColorSwatch({ color, label, selected = false, onClick, c
         aria-hidden="true"
         className="block w-11 h-11 lg:w-[38px] lg:h-[38px] rounded-full"
         style={{
-          backgroundColor: color,
+          background: color,
           boxShadow: selected
             ? "inset 0 0 0 1px #ECE0CE, 0 0 0 2px #FFFDF9, 0 0 0 3.5px #9E4F69"
             : "inset 0 0 0 1px #ECE0CE",

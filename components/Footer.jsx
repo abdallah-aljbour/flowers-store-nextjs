@@ -1,88 +1,96 @@
-"use client";
-
-import { Instagram, MessageCircle, Heart } from "lucide-react";
 import Link from "next/link";
+import { Instagram } from "lucide-react";
+import Logo from "components/ui/Logo";
+import WhatsAppIcon from "components/ui/WhatsAppIcon";
+import { NAV_LINKS } from "lib/navigation";
+import { WHATSAPP_URL, INSTAGRAM_URL } from "lib/contact";
 
-export default function Footer() {
+const year = new Date().getFullYear();
+const copyright = `© ${year} متجر المسكات · صُنع بحب في الأردن`;
+const tagline = "متجر المسكات · تصاميم مميزة لأجمل المناسبات";
+
+// Site footer (DESIGN_SPEC §3.9). `compact` = logo + © only (catalog page).
+export default function Footer({ compact = false, className = "" }) {
+  if (compact) {
+    return (
+      <footer className={`mt-12 bg-champagne px-5 py-8 flex flex-col items-center gap-3 text-center ${className}`}>
+        <Logo size={88} />
+        <p className="text-xs text-ink-muted">{copyright}</p>
+      </footer>
+    );
+  }
+
   return (
-    <footer className="bg-white border-t border-gray-200 mt-12">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Main Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Brand */}
-          <div className="text-center md:text-right">
-            <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-pandora-pink to-pink-400 rounded-full mb-2">
-              <span className="text-lg">🌸</span>
-            </div>
-            <h3 className="text-sm font-bold text-gray-900">متجر المسكات</h3>
-            <p className="text-xs text-gray-600">
-              تصاميم مميزة لأجمل المناسبات
-            </p>
+    <footer className={`mt-12 lg:mt-24 bg-champagne ${className}`}>
+      {/* Mobile */}
+      <div className="lg:hidden px-5 pt-9 pb-10 flex flex-col items-center gap-3.5 text-center">
+        <Logo size={120} />
+        <p className="text-sm text-ink-muted">{tagline}</p>
+        <nav aria-label="روابط سريعة" className="flex flex-wrap justify-center gap-1">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.key}
+              href={link.href}
+              className="min-h-tap inline-flex items-center px-2 text-sm font-medium text-ink hover:text-rose"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <ContactIcons />
+        <p className="text-xs text-ink-muted">{copyright}</p>
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden lg:flex max-w-container mx-auto px-6 pt-14 pb-8 flex-col gap-8">
+        <div className="flex flex-wrap justify-between items-start gap-8">
+          <div className="flex flex-col gap-2.5">
+            <Logo size={128} />
+            <p className="text-[15px] text-ink-muted">{tagline}</p>
           </div>
 
-          {/* Quick Links */}
-          <div className="text-center">
-            <h4 className="text-xs font-bold text-gray-900 mb-3">
-              روابط سريعة
-            </h4>
-            <div className="space-y-2">
-              <Link
-                href="/"
-                className="block text-xs text-gray-600 hover:text-pandora-pink transition-colors"
-              >
-                الرئيسية
+          <nav aria-label="روابط سريعة" className="flex flex-col gap-2.5 text-[15px]">
+            <span className="font-semibold text-ink">روابط سريعة</span>
+            {NAV_LINKS.map((link) => (
+              <Link key={link.key} href={link.href} className="text-ink hover:text-rose">
+                {link.label}
               </Link>
-              <Link
-                href="/about"
-                className="block text-xs text-gray-600 hover:text-pandora-pink transition-colors"
-              >
-                من نحن
-              </Link>
-              <Link
-                href="/wishlist"
-                className="block text-xs text-gray-600 hover:text-pandora-pink transition-colors"
-              >
-                المفضلة
-              </Link>
-            </div>
-          </div>
+            ))}
+          </nav>
 
-          {/* Contact */}
-          <div className="text-center md:text-left">
-            <h4 className="text-xs font-bold text-gray-900 mb-3">تواصل معنا</h4>
-            <div className="flex gap-3 justify-center md:justify-start">
-              <a
-                href="https://wa.me/962789577909"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors active:scale-95"
-              >
-                <MessageCircle className="w-4 h-4 text-white" />
-              </a>
-              <a
-                href="https://www.instagram.com/maskatblooms.jo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity active:scale-95"
-              >
-                <Instagram className="w-4 h-4 text-white" />
-              </a>
-            </div>
+          <div className="flex flex-col gap-3">
+            <span className="text-[15px] font-semibold text-ink">تواصلي معنا</span>
+            <ContactIcons />
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-6 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-gray-500">
-            <p>© {new Date().getFullYear()} متجر المسكات. جميع الحقوق محفوظة</p>
-            <p className="flex items-center gap-1">
-              صنع بـ{" "}
-              <Heart className="w-3 h-3 text-red-500 fill-current inline" /> في
-              الأردن
-            </p>
-          </div>
-        </div>
+        <p className="pt-5 border-t border-line text-[13px] text-ink-muted">{copyright}</p>
       </div>
     </footer>
+  );
+}
+
+function ContactIcons() {
+  return (
+    <div className="flex gap-2.5">
+      <a
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="واتساب"
+        className="mb-tap w-12 h-12 rounded-full bg-whatsapp text-white flex items-center justify-center"
+      >
+        <WhatsAppIcon className="w-[22px] h-[22px]" />
+      </a>
+      <a
+        href={INSTAGRAM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="إنستغرام"
+        className="mb-tap w-12 h-12 rounded-full bg-white border-[1.5px] border-rose text-rose flex items-center justify-center"
+      >
+        <Instagram className="w-[22px] h-[22px]" strokeWidth={1.7} aria-hidden="true" />
+      </a>
+    </div>
   );
 }
