@@ -1,4 +1,5 @@
 import AboutPageContenet from "components/AboutPageContent";
+import { SITE_URL } from "lib/site";
 export const metadata = {
   title: "من نحن - قصتنا وشركاؤنا",
   description:
@@ -17,7 +18,7 @@ export const metadata = {
     title: "من نحن | متجر المسكات 🤝",
     description:
       "قصتنا مع أفضل الشركاء في عمان - صالون هالة برجوس، كليمانس للعرائس، كليمانس للمناسبات",
-    url: "https://maskatblooms.com/about",
+    url: `${SITE_URL}/about`,
     type: "website",
   },
   twitter: {

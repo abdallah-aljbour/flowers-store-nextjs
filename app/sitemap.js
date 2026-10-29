@@ -1,8 +1,9 @@
 import { productsService } from "services/productsService";
 import { isShopProduct } from "lib/shopProduct";
+import { SITE_URL } from "lib/site";
 
 export default async function sitemap() {
-  const baseUrl = "https://maskatblooms.com";
+  const baseUrl = SITE_URL;
 
   const staticPages = [
     {

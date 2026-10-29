@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { productsService } from "services/productsService";
 import ProductPageContent from "components/ProductPageContent";
 import { isShopProduct, productTitle, bouquetLabel } from "lib/shopProduct";
+import { SITE_URL } from "lib/site";
 
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
@@ -56,7 +57,7 @@ export async function generateMetadata({ params }) {
           type: "image/jpeg",
         })),
         type: "website",
-        url: `https://maskatblooms.com/product/${params.id}`,
+        url: `${SITE_URL}/product/${params.id}`,
         siteName: "متجر المسكات",
         locale: "ar_JO",
       },
@@ -73,7 +74,7 @@ export async function generateMetadata({ params }) {
       },
       // Additional image metadata for SEO
       alternates: {
-        canonical: `https://maskatblooms.com/product/${params.id}`,
+        canonical: `${SITE_URL}/product/${params.id}`,
       },
     };
   } catch (error) {
@@ -121,7 +122,7 @@ export default async function ProductPage({ params }) {
     },
     offers: {
       "@type": "Offer",
-      url: `https://maskatblooms.com/product/${params.id}`,
+      url: `${SITE_URL}/product/${params.id}`,
       priceCurrency: "JOD",
       price: product.salePrice,
       // One year from when the page is rendered (pages refresh hourly, so it never goes stale)

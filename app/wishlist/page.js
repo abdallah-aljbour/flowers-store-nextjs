@@ -1,4 +1,5 @@
 import WishlistPageContent from "components/wishListContent";
+import { SITE_URL } from "lib/site";
 
 export const metadata = {
   title: "المفضلة - مسكاتي المحفوظة 💗",
@@ -11,7 +12,7 @@ export const metadata = {
   openGraph: {
     title: "المفضلة | متجر المسكات 💗",
     description: "مسكاتي المحفوظة",
-    url: "https://maskatblooms.com/wishlist",
+    url: `${SITE_URL}/wishlist`,
   },
 };
 

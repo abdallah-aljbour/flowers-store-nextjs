@@ -2,9 +2,10 @@ import "./globals.css";
 import { ToastProvider } from "contexts/ToastContext";
 import NavFeedback from "components/NavFeedback";
 import { amiri, amiriAccent, plexArabic, cormorant } from "./fonts";
+import { SITE_URL } from "lib/site";
 
 export const metadata = {
-  metadataBase: new URL("https://maskatblooms.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "متجر المسكات | مسكات عرائس فاخرة في الأردن",
     template: "%s | متجر المسكات",
@@ -27,7 +28,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "ar_JO",
-    url: "https://maskatblooms.com",
+    url: SITE_URL,
     siteName: "متجر المسكات",
     title: "متجر المسكات | مسكات عرائس فاخرة 🌸",
     description: "تصاميم مميزة لأجمل المناسبات",
