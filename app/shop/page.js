@@ -1,5 +1,6 @@
 import { productsService } from "services/productsService";
 import ShopContent from "components/shop/ShopContent";
+import { SITE_URL } from "lib/site";
 
 // Rebuilt at most once an hour; the browser uses this list as is (no Firebase read on load)
 export const revalidate = 3600;
@@ -19,12 +20,12 @@ export const metadata = {
     "توصيل مسكات",
   ],
   alternates: {
-    canonical: "https://maskatblooms.com/shop",
+    canonical: `${SITE_URL}/shop`,
   },
   openGraph: {
     type: "website",
     locale: "ar_JO",
-    url: "https://maskatblooms.com/shop",
+    url: `${SITE_URL}/shop`,
     siteName: "متجر المسكات",
     title: "المجموعة | متجر المسكات",
     description: "مسكات عرائس وباقات لأجمل المناسبات",

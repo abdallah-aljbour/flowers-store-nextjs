@@ -1,3 +1,5 @@
+import { SITE_URL } from "lib/site";
+
 export default function robots() {
   return {
     rules: {
@@ -5,6 +7,6 @@ export default function robots() {
       allow: "/",
       disallow: ["/wishlist", "/api/", "/_next/", "/admin/"],
     },
-    sitemap: "https://www.maskatblooms.com/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
