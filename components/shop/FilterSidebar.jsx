@@ -15,7 +15,7 @@ import {
 
 // Desktop filter sidebar (DESIGN_SPEC §4.2). Changes apply immediately through the
 // catalog's existing handleFilterChange / clearFilters.
-export default function FilterSidebar({ filters, onFilterChange, onClearFilters, maxPrice }) {
+export default function FilterSidebar({ filters, onFilterChange, onClearFilters, maxPrice, colorOptions = COLORS }) {
   const toggleColor = (color) =>
     onFilterChange(
       "colors",
@@ -63,7 +63,7 @@ export default function FilterSidebar({ filters, onFilterChange, onClearFilters,
       <fieldset>
         <legend className={legend}>اللون</legend>
         <div className="grid grid-cols-4 gap-x-1.5 gap-y-3">
-          {COLORS.map((color) => (
+          {colorOptions.map((color) => (
             <ColorSwatch
               key={color.value}
               label={color.value}

@@ -86,8 +86,11 @@ export const productsService = {
       }
       return null;
     } catch (error) {
+      // The rules only let the public read published products: treat a denied read as missing
+      if (error?.code === "permission-denied") return null;
+      // Any other error is passed on, so the product page doesn't cache a not-found page for an outage
       console.error("Error fetching product:", error);
-      return null;
+      throw error;
     }
   },
   getAll: async () => {

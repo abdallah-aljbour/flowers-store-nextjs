@@ -9,6 +9,7 @@ import Footer from "components/Footer";
 import Button from "components/ui/Button";
 import { cameFromInsideSite } from "lib/navHistory";
 import { SHOP_PATH } from "lib/navigation";
+import { isShopProduct } from "lib/shopProduct";
 
 export default function ProductPageContent({ params, initialProduct = null }) {
   const router = useRouter();
@@ -25,7 +26,8 @@ export default function ProductPageContent({ params, initialProduct = null }) {
         setLoading(true);
         const productData = await productsService.getById(params.id);
 
-        if (!productData) {
+        // Same rule as the server page: bags and unpublished products are not shown
+        if (!isShopProduct(productData)) {
           setError("المنتج غير موجود");
         } else {
           setProduct(productData);

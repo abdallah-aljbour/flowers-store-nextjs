@@ -5,6 +5,6 @@ export default function robots() {
       allow: "/",
       disallow: ["/wishlist", "/api/", "/_next/", "/admin/"],
     },
-    sitemap: "https://yoursite.com/sitemap.xml",
+    sitemap: "https://www.maskatblooms.com/sitemap.xml",
   };
 }

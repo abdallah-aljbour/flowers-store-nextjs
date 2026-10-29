@@ -31,8 +31,8 @@ export const metadata = {
     images: [
       {
         url: "/maskatbloomsImage.jpg",
-        width: 1200,
-        height: 630,
+        width: 1181,
+        height: 1181,
         alt: "متجر المسكات",
       },
     ],

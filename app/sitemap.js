@@ -1,4 +1,5 @@
 import { productsService } from "services/productsService";
+import { isShopProduct } from "lib/shopProduct";
 
 export default async function sitemap() {
   const baseUrl = "https://maskatblooms.com";
@@ -26,7 +27,8 @@ export default async function sitemap() {
 
   // جيب المنتجات
   try {
-    const products = await productsService.getAll();
+    // Only the pages the shop shows (no bags, no unpublished products)
+    const products = (await productsService.getAll()).filter(isShopProduct);
 
     if (!products || products.length === 0) {
       return staticPages;

@@ -98,6 +98,7 @@ export default function ShopContent({ initialProducts = null }) {
     sortBy,
     setSortBy,
     maxPrice,
+    colorOptions,
     resultCount,
   } = useProducts({
     initialProducts,
@@ -280,6 +281,7 @@ export default function ShopContent({ initialProducts = null }) {
     sortBy,
     onSortChange: setSortBy,
     maxPrice,
+    colorOptions,
   };
 
   const quickChips = (
@@ -343,6 +345,7 @@ export default function ShopContent({ initialProducts = null }) {
           sortBy={sortBy}
           onSortChange={setSortBy}
           maxPrice={maxPrice}
+          colorOptions={colorOptions}
           className="px-4"
         />
         {quickChips}
@@ -355,6 +358,7 @@ export default function ShopContent({ initialProducts = null }) {
             onFilterChange={handleFilterChange}
             onClearFilters={clearFilters}
             maxPrice={maxPrice}
+            colorOptions={colorOptions}
           />
         </div>
 
