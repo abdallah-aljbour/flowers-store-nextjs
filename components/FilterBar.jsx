@@ -9,7 +9,7 @@ const toolButton =
   "mb-tap inline-flex items-center gap-2 min-h-tap px-4 rounded-full bg-white text-sm font-medium transition-colors";
 
 // Mobile catalog tools: outline Filter + Sort buttons that open bottom sheets (DESIGN_SPEC §4.2/§4.3)
-export default function FilterBar({ filters, onFilterChange, sortBy, onSortChange, maxPrice, className = "" }) {
+export default function FilterBar({ filters, onFilterChange, sortBy, onSortChange, maxPrice, colorOptions = COLORS, className = "" }) {
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showSortSheet, setShowSortSheet] = useState(false);
 
@@ -58,7 +58,7 @@ export default function FilterBar({ filters, onFilterChange, sortBy, onSortChang
           type="filter"
           filters={filters}
           flowerTypes={FLOWER_TYPES}
-          colors={COLORS}
+          colors={colorOptions}
           maxPrice={maxPrice}
           onClose={() => setShowFilterSheet(false)}
           onApply={(newFilters) => {

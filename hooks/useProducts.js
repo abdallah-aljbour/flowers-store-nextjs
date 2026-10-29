@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { productsService } from "lib/productsClient"; // loads services/productsService on first use
 import { DEFAULT_MAX_PRICE, DEFAULT_VIEW, highestPriceOf, buildView, seedView } from "lib/catalogView";
 import { getCachedProducts, setCachedProducts } from "lib/productsCache";
+import { productColorsOf, colorOptionsFor } from "lib/catalogOptions";
 
 // Layout effect in the browser (runs before paint), plain effect on the server
 const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
@@ -39,6 +40,8 @@ export const useProducts = ({
   const [searchQuery, setSearchQuery] = useState(start.searchQuery);
   const [sortBy, setSortBy] = useState(start.sortBy);
   const [maxPrice, setMaxPrice] = useState(seed ? seed.highest : DEFAULT_MAX_PRICE);
+  // Colours that exist in the products (for the colour filter); null until products are known
+  const [productColors, setProductColors] = useState(() => productColorsOf(initialProducts));
   const [filters, setFilters] = useState({
     flowerTypes: start.flowerTypes,
     colors: start.colors,
@@ -110,6 +113,8 @@ export const useProducts = ({
           allProducts = await productsService.getAll();
           setCachedProducts(allProducts); // احفظ في الـ cache
         }
+
+        if (!productColors) setProductColors(productColorsOf(allProducts));
 
         // أعلى سعر بين المنتجات = الحد الأقصى الافتراضي، حتى ما ينخفى أي منتج
         const highestPrice = highestPriceOf(allProducts);
@@ -190,6 +195,7 @@ export const useProducts = ({
     sortBy,
     setSortBy,
     maxPrice,
+    colorOptions: colorOptionsFor(productColors, filters.colors),
     resultCount,
   };
 };

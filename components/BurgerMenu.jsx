@@ -37,6 +37,7 @@ export default function BurgerMenu({
   onSortChange,
   activeFiltersCount,
   maxPrice,
+  colorOptions = COLORS,
 }) {
   const pathname = usePathname();
   const currentKey = activeNavKey(pathname);
@@ -255,7 +256,7 @@ export default function BurgerMenu({
           depth: 2,
           content: () => (
             <div className="grid grid-cols-4 gap-x-2 gap-y-4 pt-1">
-              {COLORS.map((color) => (
+              {colorOptions.map((color) => (
                 <ColorSwatch
                   key={color.value}
                   label={color.value}

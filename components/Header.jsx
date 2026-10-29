@@ -120,6 +120,7 @@ export default function Header({ catalog, className = "" }) {
         onSortChange={catalog?.onSortChange}
         activeFiltersCount={activeFiltersCount}
         maxPrice={catalog?.maxPrice}
+        colorOptions={catalog?.colorOptions}
       />
     </>
   );

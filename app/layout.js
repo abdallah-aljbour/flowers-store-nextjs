@@ -34,8 +34,8 @@ export const metadata = {
     images: [
       {
         url: "/maskatbloomsImage.jpg",
-        width: 1200,
-        height: 630,
+        width: 1181,
+        height: 1181,
         alt: "متجر المسكات",
       },
     ],
@@ -44,7 +44,8 @@ export const metadata = {
     card: "summary_large_image",
     title: "متجر المسكات 🌸",
     description: "تصاميم مميزة لأجمل المناسبات",
-    images: ["/og-image.jpg"],
+    // /og-image.jpg doesn't exist (404): use the same share image as Open Graph
+    images: ["/maskatbloomsImage.jpg"],
   },
   robots: {
     index: true,
